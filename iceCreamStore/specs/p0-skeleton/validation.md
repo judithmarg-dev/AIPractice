@@ -9,6 +9,7 @@ All checks below must pass before the PR is merged to `main`.
 ```
 pnpm dev
 ```
+
 - Browser opens without console errors
 - Page renders (Tailwind utility class visible — e.g. a coloured background or text)
 
@@ -17,6 +18,7 @@ pnpm dev
 ```
 pnpm lint
 ```
+
 - Exit code 0, no errors or warnings
 
 ## 3. Type-check passes
@@ -24,6 +26,7 @@ pnpm lint
 ```
 pnpm tsc --noEmit
 ```
+
 - Exit code 0, no type errors
 
 ## 4. Format check passes
@@ -31,6 +34,7 @@ pnpm tsc --noEmit
 ```
 pnpm format:check
 ```
+
 - Exit code 0 (all files already formatted or formatting was run before commit)
 
 ## 5. Path alias resolves
@@ -47,6 +51,7 @@ src/components/
 src/hooks/
 src/types/
 ```
+
 All four directories present in the repo (`.gitkeep` files committed).
 
 ## 7. GitHub Actions CI is green

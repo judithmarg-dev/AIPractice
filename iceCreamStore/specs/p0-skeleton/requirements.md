@@ -6,14 +6,14 @@ Set up a runnable, consistently formatted repo with shared conventions and a pas
 
 ## Deliverables
 
-| # | Item | Detail |
-|---|------|--------|
-| 1 | Vite + React + TypeScript scaffold | Already bootstrapped; confirm it runs (`pnpm dev`) |
-| 2 | Tailwind CSS | Install and configure; verify utility classes render in `App.tsx` |
-| 3 | Prettier | Install + `.prettierrc`; wired into ESLint via `eslint-config-prettier` so rules don't conflict |
-| 4 | Path alias `@/*` → `src/*` | Configured in both `vite.config.ts` and `tsconfig.app.json` |
-| 5 | Folder structure | Create `src/pages/`, `src/components/`, `src/hooks/`, `src/types/` with `.gitkeep` |
-| 6 | GitHub Actions CI | Single workflow: `pnpm lint && tsc --noEmit` on every push and pull request to `main` |
+| #   | Item                               | Detail                                                                                          |
+| --- | ---------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 1   | Vite + React + TypeScript scaffold | Already bootstrapped; confirm it runs (`pnpm dev`)                                              |
+| 2   | Tailwind CSS                       | Install and configure; verify utility classes render in `App.tsx`                               |
+| 3   | Prettier                           | Install + `.prettierrc`; wired into ESLint via `eslint-config-prettier` so rules don't conflict |
+| 4   | Path alias `@/*` → `src/*`         | Configured in both `vite.config.ts` and `tsconfig.app.json`                                     |
+| 5   | Folder structure                   | Create `src/pages/`, `src/components/`, `src/hooks/`, `src/types/` with `.gitkeep`              |
+| 6   | GitHub Actions CI                  | Single workflow: `pnpm lint && tsc --noEmit` on every push and pull request to `main`           |
 
 ## Out of scope
 
@@ -23,12 +23,12 @@ Set up a runnable, consistently formatted repo with shared conventions and a pas
 
 ## Key decisions
 
-| Decision | Choice | Reason |
-|----------|--------|--------|
-| Path alias style | `@/*` → `src/*` | Industry standard; works with Vite and TypeScript out of the box |
-| Formatter | Prettier alongside ESLint | Separates formatting from linting; reduces ESLint rule noise (Mary's "reliable stack" requirement) |
-| CI checks | lint + type-check only | Build failures are rare at this stage; keeps the feedback loop fast |
-| CI provider | GitHub Actions | Project already hosted on GitHub; zero additional tooling |
+| Decision         | Choice                    | Reason                                                                                             |
+| ---------------- | ------------------------- | -------------------------------------------------------------------------------------------------- |
+| Path alias style | `@/*` → `src/*`           | Industry standard; works with Vite and TypeScript out of the box                                   |
+| Formatter        | Prettier alongside ESLint | Separates formatting from linting; reduces ESLint rule noise (Mary's "reliable stack" requirement) |
+| CI checks        | lint + type-check only    | Build failures are rare at this stage; keeps the feedback loop fast                                |
+| CI provider      | GitHub Actions            | Project already hosted on GitHub; zero additional tooling                                          |
 
 ## Stakeholder context
 
