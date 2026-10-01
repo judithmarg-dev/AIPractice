@@ -1,10 +1,9 @@
 # P1 — Flavor Catalog: Implementation Plan
 
-## Group 0 — Setup Frappe UI
+## Group 0 — Styling decision
 
-1. Install Frappe UI (`pnpm add frappe-ui`)
-2. Register the plugin / import base styles in `main.ts` (per Frappe UI docs)
-3. Verify a test component renders without errors
+1. Frappe UI evaluated — incompatible (Vue-only library with hard Vue peer deps)
+2. Plain CSS used in `src/catalog.css` with existing project design tokens (no new dependency needed)
 
 ## Group 1 — Data & types
 

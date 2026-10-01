@@ -23,7 +23,7 @@ P1 is ready to merge when **all** of the following pass.
 - `flavors.json` has at least 6 entries covering all three categories
 - No `any` types in flavor-related code
 - Components are in `src/components/`; page-level component in `src/pages/` (or equivalent agreed structure)
-- No inline styles; use Frappe UI components and tokens only
+- No inline styles; all visual styles in `src/catalog.css` using project CSS tokens
 
 ## Definition of done
 

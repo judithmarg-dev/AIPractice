@@ -1,0 +1,199 @@
+/* ── Catalog page ─────────────────────────────────────── */
+.catalog {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+  box-sizing: border-box;
+}
+
+.catalog__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.catalog__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.04em;
+}
+
+.catalog__subtitle {
+  color: var(--text);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* ── Controls bar ─────────────────────────────────────── */
+.catalog__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* ── Category filter ──────────────────────────────────── */
+.category-filter {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.category-filter__btn {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.category-filter__btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.category-filter__btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── Size picker ──────────────────────────────────────── */
+.size-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.size-picker__label {
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.size-picker__buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.size-picker__btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.size-picker__btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.size-picker__btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── Flavor grid ──────────────────────────────────────── */
+.catalog__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .catalog__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .catalog__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog__controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ── Flavor card ──────────────────────────────────────── */
+.flavor-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+}
+
+.flavor-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    rgba(0, 0, 0, 0.12) 0 16px 24px -4px,
+    rgba(0, 0, 0, 0.06) 0 6px 8px -2px;
+}
+
+.flavor-card__image {
+  height: 140px;
+  width: 100%;
+}
+
+.flavor-card__body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.flavor-card__category {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.flavor-card__name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.flavor-card__description {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+.flavor-card__size-badge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  align-self: flex-start;
+}

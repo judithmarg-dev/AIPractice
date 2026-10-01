@@ -36,7 +36,7 @@ Sizes are a static constant (not in the JSON): `["small", "medium", "large"]`.
 |---|---|---|
 | Data source | `src/data/flavors.json` | Easy to swap for an API fetch without changing component logic |
 | State management | React local state / hooks | Context not needed at this scale; aligns with tech-stack guidance |
-| Styling | Frappe UI | Component library with built-in design system; replaces raw Tailwind utility classes |
+| Styling | Plain CSS (`catalog.css`) | Frappe UI is Vue-only and incompatible with React; plain CSS with the project's existing design tokens used instead |
 | Filter behavior | Single-select category filter (show all when none selected) | Simplest UX; can be extended to multi-select later |
 
 ## Audience alignment (mission.md)
