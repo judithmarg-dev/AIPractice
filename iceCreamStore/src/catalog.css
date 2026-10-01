@@ -1,3 +1,41 @@
+/* ── Browser surfaces ─────────────────────────────────── */
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ── Keyframes ────────────────────────────────────────── */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes badge-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.14); }
+  100% { transform: scale(1); }
+}
+
 /* ── Catalog page ─────────────────────────────────────── */
 .catalog {
   max-width: 1100px;
@@ -43,6 +81,9 @@
 }
 
 .category-filter__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.4rem 1rem;
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -50,7 +91,7 @@
   color: var(--text);
   font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
 }
 
 .category-filter__btn:hover {
@@ -62,6 +103,11 @@
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
+}
+
+.category-filter__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ── Size picker ──────────────────────────────────────── */
@@ -92,7 +138,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
 }
 
 .size-picker__btn:hover {
@@ -104,6 +150,11 @@
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
+}
+
+.size-picker__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ── Flavor grid ──────────────────────────────────────── */
@@ -137,23 +188,56 @@
   overflow: hidden;
   background: var(--bg);
   box-shadow: var(--shadow);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
+  animation: card-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
 }
 
 .flavor-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   box-shadow:
-    rgba(0, 0, 0, 0.12) 0 16px 24px -4px,
-    rgba(0, 0, 0, 0.06) 0 6px 8px -2px;
+    0 20px 40px -8px color-mix(in srgb, var(--flavor-color) 35%, transparent),
+    0 8px 16px -4px rgba(0, 0, 0, 0.08);
 }
 
+/* ── Card image area ──────────────────────────────────── */
 .flavor-card__image {
-  height: 140px;
+  height: 148px;
   width: 100%;
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--flavor-color) 40%, white) 0%,
+    var(--flavor-color) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+@media (prefers-color-scheme: dark) {
+  .flavor-card__image {
+    background: linear-gradient(
+      140deg,
+      color-mix(in srgb, var(--flavor-color) 55%, #16171d) 0%,
+      color-mix(in srgb, var(--flavor-color) 80%, #16171d) 100%
+    );
+  }
+}
+
+/* Scoop icon floats up when the card is hovered */
+.flavor-card__scoop {
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.flavor-card:hover .flavor-card__scoop {
+  transform: translateY(-5px);
+}
+
+/* ── Card body ────────────────────────────────────────── */
 .flavor-card__body {
   padding: 1rem;
   display: flex;
@@ -196,4 +280,15 @@
   border-radius: 4px;
   padding: 0.2rem 0.5rem;
   align-self: flex-start;
+  animation: badge-pop 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Reduced motion ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .flavor-card,
+  .flavor-card__scoop,
+  .flavor-card__size-badge {
+    animation: none;
+    transition: none;
+  }
 }

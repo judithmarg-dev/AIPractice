@@ -30,8 +30,8 @@ export function FlavorCatalogPage() {
       </div>
 
       <section className="catalog__grid" aria-label="Flavor list">
-        {visible.map((flavor) => (
-          <FlavorCard key={flavor.id} flavor={flavor} selectedSize={selectedSize} />
+        {visible.map((flavor, index) => (
+          <FlavorCard key={flavor.id} flavor={flavor} selectedSize={selectedSize} index={index} />
         ))}
       </section>
     </main>
