@@ -1,3 +1,4 @@
+'use client'
 import type { FlavorCategory } from '../types/flavor'
 
 const CATEGORIES: FlavorCategory[] = ['fruit', 'chocolate', 'classic']

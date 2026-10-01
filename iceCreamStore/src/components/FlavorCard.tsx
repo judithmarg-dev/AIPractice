@@ -1,3 +1,4 @@
+'use client'
 import type { Flavor, Size } from '../types/flavor'
 
 interface FlavorCardProps {

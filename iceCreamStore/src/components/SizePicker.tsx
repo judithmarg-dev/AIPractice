@@ -1,3 +1,4 @@
+'use client'
 import type { Size } from '../types/flavor'
 
 const SIZES: { value: Size; label: string }[] = [
