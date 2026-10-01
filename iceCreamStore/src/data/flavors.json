@@ -1,0 +1,65 @@
+[
+  {
+    "id": "strawberry-bliss",
+    "name": "Strawberry Bliss",
+    "description": "Bright, summery strawberry made with sun-ripened fruit and a touch of lemon zest.",
+    "category": "fruit",
+    "imagePlaceholder": "#f9a8d4"
+  },
+  {
+    "id": "mango-tango",
+    "name": "Mango Tango",
+    "description": "Tropical Alphonso mango with a hint of chilli for a bold, sweet-heat finish.",
+    "category": "fruit",
+    "imagePlaceholder": "#fcd34d"
+  },
+  {
+    "id": "blueberry-swirl",
+    "name": "Blueberry Swirl",
+    "description": "Wild blueberries swirled through a creamy vanilla base for a beautiful purple ribbon.",
+    "category": "fruit",
+    "imagePlaceholder": "#a78bfa"
+  },
+  {
+    "id": "dark-decadence",
+    "name": "Dark Decadence",
+    "description": "72% single-origin dark chocolate, intensely bittersweet and impossibly smooth.",
+    "category": "chocolate",
+    "imagePlaceholder": "#78350f"
+  },
+  {
+    "id": "triple-choc-chunk",
+    "name": "Triple Choc Chunk",
+    "description": "Milk chocolate base loaded with white, dark, and milk chocolate chunks in every scoop.",
+    "category": "chocolate",
+    "imagePlaceholder": "#92400e"
+  },
+  {
+    "id": "mocha-ribbon",
+    "name": "Mocha Ribbon",
+    "description": "Espresso-infused chocolate ice cream with a dark fudge ribbon running through the centre.",
+    "category": "chocolate",
+    "imagePlaceholder": "#451a03"
+  },
+  {
+    "id": "vanilla-dream",
+    "name": "Vanilla Dream",
+    "description": "Madagascar Bourbon vanilla bean, slow-churned to a silky, floral classic.",
+    "category": "classic",
+    "imagePlaceholder": "#fef3c7"
+  },
+  {
+    "id": "salted-caramel",
+    "name": "Salted Caramel",
+    "description": "Slow-cooked caramel with flakes of Maldon sea salt — the crowd's perennial favourite.",
+    "category": "classic",
+    "imagePlaceholder": "#d97706"
+  },
+  {
+    "id": "mint-choc-chip",
+    "name": "Mint Choc Chip",
+    "description": "Cool spearmint cream scattered with fine dark chocolate chips for that satisfying crunch.",
+    "category": "classic",
+    "imagePlaceholder": "#6ee7b7"
+  }
+]
