@@ -5,6 +5,8 @@ interface FlavorCardProps {
   flavor: Flavor
   selectedSize: Size
   index: number
+  isSelected?: boolean
+  onClick?: () => void
 }
 
 function ScoopIcon() {
@@ -28,7 +30,7 @@ function ScoopIcon() {
   )
 }
 
-export function FlavorCard({ flavor, selectedSize, index }: FlavorCardProps) {
+export function FlavorCard({ flavor, selectedSize, index, isSelected = false, onClick }: FlavorCardProps) {
   const sizeLabel: Record<Size, string> = {
     small: 'Small · 1 scoop',
     medium: 'Medium · 2 scoops',
@@ -37,13 +39,22 @@ export function FlavorCard({ flavor, selectedSize, index }: FlavorCardProps) {
 
   return (
     <article
-      className="flavor-card"
+      className={`flavor-card ${isSelected ? 'flavor-card--selected' : ''}`}
       style={
         {
           '--flavor-color': flavor.imagePlaceholder,
           '--i': index,
         } as React.CSSProperties
       }
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && onClick) {
+          e.preventDefault()
+          onClick()
+        }
+      }}
     >
       <div className="flavor-card__image" aria-hidden="true">
         <ScoopIcon />
