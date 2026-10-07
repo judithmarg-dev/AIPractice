@@ -19,11 +19,11 @@ P5 is ready to merge when **all** of the following pass.
 
 | Scenario | Expected result |
 |---|---|
-| At least one booking exists in DB | Booking trend chart renders with data points; no blank/error state |
-| No bookings exist | Charts render empty states (e.g. "No data yet") rather than crashing |
+| At least one booking exists in Redux state | Booking trend chart renders with data points; no blank/error state |
+| No bookings exist in Redux state | Charts render empty states (e.g. "No data yet") rather than crashing |
 | Multiple bookings span different days | Trend chart shows multiple days with correct counts |
 | Bookings exist for different time slots | Time slot chart reflects relative frequencies correctly |
-| An ice cream item has `inventory_count` < 5 | It appears in the Low Stock alerts section |
+| An ice cream item has `inventoryCount` < 5 | It appears in the Low Stock alerts section |
 | All items are at or above threshold | Low stock section shows "All items sufficiently stocked" or equivalent |
 
 ### 4. CSV export checks
@@ -37,7 +37,7 @@ P5 is ready to merge when **all** of the following pass.
 - All Recharts components receive typed data props (no `any`)
 - `exportBookingsCSV` is a pure utility with no DOM side effects beyond the download trigger
 - `LOW_STOCK_THRESHOLD` is a named constant, not a magic number
-- Query functions in `analytics.ts` are server-only (no Supabase anon key in client bundle)
+- All analytics selectors are pure functions over Redux state (no API calls, no side effects)
 - Charts degrade gracefully with empty data arrays
 
 ## Definition of done

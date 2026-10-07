@@ -2,57 +2,67 @@
 
 ## Scope
 
-Staff can manage the ice cream catalog (add, edit, archive items) through a protected dashboard. This phase introduces the backend layer: Supabase as the hosted database, Next.js for the full-stack runtime, and auth to protect staff routes. Booking data submitted in P2 is also persisted here.
+Staff can manage the ice cream catalog (add, edit, archive items) through a protected dashboard. This phase introduces Redux Toolkit as the global state layer. Data is in-memory (persists across navigation, lost on page reload).
+
+> **2026-10-07 — Scope change:** Supabase and Next.js were removed because they caused app failures. The backend scope is now delivered as Redux Toolkit slices. See decision log in `roadmap.md`.
 
 ### In scope
-- Next.js 14 (App Router) migration from the Vite scaffold
-- Supabase as the hosted Postgres database (no local DB needed)
-- Staff-only auth via Supabase Auth (email/password)
-- Inventory dashboard: list all ice creams, add a new item, edit an existing item, archive (soft-delete) an item
-- Booking submissions from P2 persisted to Supabase on form submit
+- Redux Toolkit store setup: slices for `catalog`, `bookings`, `inventory`, `auth`
+- Mock staff auth: hardcoded credentials checked against Redux `auth` slice; protected routes redirect unauthenticated users to `/login`
+- Inventory dashboard: list all ice creams, add a new item, edit an existing item, archive (soft-delete) an item — all via Redux dispatch
+- Booking submissions from P2 persisted to Redux `bookings` slice on form submit
+
+### Removed (2026-10-07)
+- ~~Next.js 14 (App Router) migration from the Vite scaffold~~ — **REMOVED 2026-10-07**: Next.js caused app failures; staying on Vite + React
+- ~~Supabase as the hosted Postgres database (no local DB needed)~~ — **REMOVED 2026-10-07**: replaced by Redux Toolkit in-memory store
+- ~~Staff-only auth via Supabase Auth (email/password)~~ — **REMOVED 2026-10-07**: replaced by mock auth Redux slice (hardcoded credentials)
+- ~~Booking submissions from P2 persisted to Supabase on form submit~~ — **REMOVED 2026-10-07**: persisted to Redux store instead (in-memory)
 
 ### Out of scope
 - Role granularity beyond "staff" (admin vs. viewer roles deferred)
 - Image uploads or CDN (placeholder values only, as in P1)
 - Public-facing catalog API (still served from static data in the front-end for now)
 - Real-time inventory sync to the customer-facing catalog (deferred to P5)
+- Real database persistence (deferred; backend strategy TBD post-MVP)
 
-## Supabase schema (minimum)
+## State shape (replaces Supabase schema)
 
-### `ice_creams`
-| Column | Type | Notes |
+### `inventory` slice — `IceCream[]`
+| Field | Type | Notes |
 |---|---|---|
-| id | uuid (PK) | Supabase default |
-| name | text | Not null |
-| description | text | |
-| category | text | `fruit \| chocolate \| classic` |
-| image_placeholder | text | |
+| id | string | UUID generated client-side |
+| name | string | Not empty |
+| description | string | |
+| category | `'fruit' \| 'chocolate' \| 'classic'` | |
+| imagePlaceholder | string | |
+| inventoryCount | number | Default 0; used for low-stock alerts in P5 |
 | archived | boolean | Default false; soft-delete |
-| created_at | timestamptz | Supabase default |
+| createdAt | string | ISO timestamp set on creation |
 
-### `bookings`
-| Column | Type | Notes |
+### `bookings` slice — `Booking[]`
+| Field | Type | Notes |
 |---|---|---|
-| id | uuid (PK) | Supabase default |
-| date | date | Not null |
-| time | text | 30-min slot string, e.g. "14:30" |
-| party_size | integer | Not null |
-| first_name | text | Not null |
-| last_name | text | Not null |
-| email | text | Not null |
-| phone | text | Not null |
-| status | text | `pending \| confirmed \| cancelled`; default `pending` |
-| created_at | timestamptz | Supabase default |
+| id | string | UUID generated client-side |
+| date | string | ISO date |
+| time | string | 30-min slot, e.g. `"14:30"` |
+| partySize | number | |
+| firstName | string | |
+| lastName | string | |
+| email | string | |
+| phone | string | |
+| status | `'pending' \| 'confirmed' \| 'cancelled'` | Default `'pending'` |
+| createdAt | string | ISO timestamp |
 
 ## Key decisions
 
 | Decision | Choice | Rationale |
 |---|---|---|
-| Database | Supabase (hosted Postgres) | No local DB setup; free tier sufficient for MVP; instant REST + Realtime APIs |
-| Auth | Supabase Auth (email/password) | Same SDK as DB; avoids NextAuth config overhead at this scale |
-| Framework | Next.js 14 App Router | Enables Server Actions / Server Components for secure DB access; aligns with tech-stack plan |
-| Inventory delete | Soft-delete (`archived` flag) | Preserves historical booking references; safer than hard-delete |
+| State | Redux Toolkit | Replaces Supabase; consistent global state across catalog, bookings, inventory, auth |
+| Auth | Mock Redux `auth` slice (hardcoded credentials) | Supabase Auth removed; sufficient for MVP staff access without a real backend |
+| Persistence | In-memory (Redux store) | Data survives navigation but not page reload; real persistence deferred |
+| Delete | Soft-delete (`archived: true`) | Preserves booking references; consistent with original design |
+| IDs | `crypto.randomUUID()` | No database to generate UUIDs; browser API is sufficient |
 
 ## Audience alignment (mission.md)
 
-This phase serves **store owners**: they can maintain the catalog and have bookings persisted for future visibility. The customer experience (P1 catalog, P2 booking) is unchanged from the outside.
+This phase serves **store owners**: they can maintain the catalog and have bookings persisted (in-memory) for operational visibility. The customer experience (P1 catalog, P2 booking) is unchanged from the outside.

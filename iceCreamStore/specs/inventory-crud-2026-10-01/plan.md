@@ -1,42 +1,46 @@
 # P3 — Inventory CRUD: Implementation Plan
 
-## Group 0 — Framework migration
+> **2026-10-07 — Plan rewritten**: Next.js and Supabase removed (app failures). Groups 0–2 below replace the original Next.js migration, Supabase setup, and auth groups. See requirements.md for full change history.
 
-1. Scaffold Next.js 14 App Router project alongside (or replacing) the Vite app; preserve existing component and type files
-2. Configure path aliases and Tailwind CSS in the Next.js config to match the current setup
-3. Verify `pnpm lint` and `pnpm tsc --noEmit` green before continuing
+## Group 0 — Redux Toolkit store setup
 
-## Group 1 — Supabase setup
+1. Install `@reduxjs/toolkit` and `react-redux`
+2. Create `src/store/index.ts` — configure the Redux store with all slices
+3. Wrap `<App>` in `<Provider store={store}>` in `main.tsx`
+4. Verify `pnpm lint` and `pnpm tsc --noEmit` green before continuing
 
-4. Create a Supabase project; record the `SUPABASE_URL` and `SUPABASE_ANON_KEY` in `.env.local` (never committed)
-5. Run the `ice_creams` and `bookings` SQL migrations via the Supabase SQL editor (scripts in `supabase/migrations/`)
-6. Enable Row-Level Security (RLS) on both tables; add policies so only authenticated users (staff) can write
-7. Install `@supabase/supabase-js` and create `src/lib/supabaseClient.ts`
+## Group 1 — Mock auth slice
 
-## Group 2 — Auth
+5. Create `src/store/slices/authSlice.ts` — state: `{ isAuthenticated: boolean; error: string | null }`
+6. Actions: `login(credentials)` validates against a hardcoded staff credential constant; sets `isAuthenticated: true` on match, `error` on mismatch. `logout()` clears session.
+7. `LoginPage` — email + password form; dispatches `login` action on submit; shows error from Redux state
+8. `AuthGuard` component — reads `isAuthenticated` from Redux; redirects unauthenticated users to `/login`
+9. Wrap all `/staff/*` routes with `<AuthGuard>`
+10. "Sign out" button dispatches `logout`
 
-8. Enable Supabase Auth email/password provider in the Supabase dashboard
-9. `LoginPage` — email + password form; calls `supabase.auth.signInWithPassword`
-10. Server-side session check in the staff layout (Next.js middleware or `auth()` server utility); redirect unauthenticated requests to `/login`
-11. "Sign out" button in the staff nav
+## Group 2 — Inventory slice
+
+11. Create `src/store/slices/inventorySlice.ts` — state: `IceCream[]`; seed initial state from `src/data/flavors.json`
+12. Actions: `addItem(item)`, `updateItem(item)`, `archiveItem(id)` (sets `archived: true`)
+13. Selectors: `selectActiveItems` (filters out archived), `selectItemById(id)`
 
 ## Group 3 — Inventory dashboard
 
-12. `InventoryListPage` — fetches all non-archived ice creams from Supabase; renders a table with name, category, and action buttons
-13. `InventoryFormPage` — shared form for add and edit; fields match the `ice_creams` schema
-14. Add flow: `POST` via Server Action → `supabase.from('ice_creams').insert(…)` → redirect to list
-15. Edit flow: `GET` item, pre-fill form → `PATCH` via Server Action → redirect to list
-16. Archive action: Server Action sets `archived = true`; item disappears from list without a hard delete
+14. `InventoryListPage` at `/staff/inventory` — reads from `selectActiveItems`; renders a table with name, category, and action buttons
+15. `InventoryFormPage` — shared form for add and edit; fields match the `IceCream` state shape
+16. Add flow: dispatch `addItem` with a new `crypto.randomUUID()` id → redirect to list
+17. Edit flow: pre-fill form from `selectItemById` → dispatch `updateItem` → redirect to list
+18. Archive action: dispatch `archiveItem(id)`; item disappears from list
 
 ## Group 4 — Booking persistence
 
-17. Update `bookingService.ts` (from P2): replace the stub with a real Supabase insert into `bookings`
-18. Verify the confirmation screen still shows after a successful insert; show an error state on failure
+19. Create `src/store/slices/bookingsSlice.ts` — state: `Booking[]`; actions: `addBooking(booking)`, `updateBookingStatus(id, status)`
+20. Update `bookingService.ts` (from P2): replace the no-op stub with a Redux `dispatch(addBooking(...))` call
+21. Verify the confirmation screen still shows after a successful dispatch; error state is unchanged (dispatch does not throw)
 
 ## Group 5 — Integration & polish
 
-19. Seed the `ice_creams` table from `src/data/flavors.json` (one-off migration script or Supabase SQL)
-20. Add staff nav link in the app header (visible only when authenticated)
-21. Run `pnpm lint` and `pnpm tsc --noEmit`; fix any issues
-22. Manual validation pass against `validation.md` checklist
-23. Commit and open PR
+22. Add staff nav link in the app header (visible only when `isAuthenticated`)
+23. Run `pnpm lint` and `pnpm tsc --noEmit`; fix any issues
+24. Manual validation pass against `validation.md` checklist
+25. Commit and open PR
