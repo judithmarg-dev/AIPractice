@@ -1,4 +1,3 @@
-'use client'
 import type { Flavor, Size } from '../types/flavor'
 
 interface FlavorCardProps {
@@ -49,6 +48,7 @@ export function FlavorCard({ flavor, selectedSize, index, isSelected = false, on
       onClick={onClick}
       role="button"
       tabIndex={0}
+      aria-expanded={isSelected}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && onClick) {
           e.preventDefault()

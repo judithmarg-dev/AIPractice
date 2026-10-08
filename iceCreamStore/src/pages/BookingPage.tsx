@@ -1,7 +1,5 @@
-'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useNavigate, Link } from 'react-router-dom'
 import { DateInput } from '@/components/booking/DateInput'
 import { TimeSelect } from '@/components/booking/TimeSelect'
 import { PartySizeInput } from '@/components/booking/PartySizeInput'
@@ -36,7 +34,7 @@ function validate(form: BookingFormData): BookingFormErrors {
 }
 
 export default function BookingPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [form, setForm] = useState<BookingFormData>({
     date: '',
     time: '',
@@ -67,7 +65,7 @@ export default function BookingPage() {
     try {
       await submitBooking(form)
       sessionStorage.setItem('booking_confirmation', JSON.stringify(form))
-      router.push('/booking/confirmation')
+      navigate('/booking/confirmation')
     } catch {
       setServerError('Something went wrong. Please try again.')
     } finally {
@@ -78,7 +76,7 @@ export default function BookingPage() {
   return (
     <main className="min-h-screen" style={{ background: 'var(--bg)' }}>
       <div className="max-w-xl mx-auto px-4 py-12">
-        <Link href="/" className="text-sm mb-6 inline-block" style={{ color: 'var(--accent)' }}>
+        <Link to="/" className="text-sm mb-6 inline-block" style={{ color: 'var(--accent)' }}>
           ← Back to catalog
         </Link>
 

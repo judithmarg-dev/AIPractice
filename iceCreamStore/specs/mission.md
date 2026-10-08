@@ -1,9 +1,10 @@
 # Mission
 
-IceCreamStore serves two equally important audiences.
+IceCreamStore runs a tablet-first staff-admin tool. Store staff and owners use it at the counter to manage the ice cream catalog, handle bookings, and monitor inventory and sales trends.
 
-**Clients** — people who want to order ice creams customized by size, shape, and flavor. They expect a smooth, intuitive ordering experience that lets them mix and match options without friction.
+One user type, one device: every screen is designed for a staff member or owner using a tablet, not for a customer's phone or a manager's desktop.
 
-**Store Owners** — operators who need to know which ice creams are most in demand, track order trends, and access analytics that support stocking and business decisions.
+Two goals matter equally:
 
-Every product decision balances these two goals: a feature that delights clients but obscures owner visibility, or vice versa, is incomplete.
+- **Fast, frictionless operations.** Staff should manage catalog items, bookings, and inventory in a few taps on a tablet, without hunting through menus.
+- **Clear operational visibility.** Owners should see demand, order trends, and stocking signals without exporting data or building reports themselves.

@@ -1,16 +1,10 @@
-import Link from 'next/link'
-import { createClient } from '@/lib/supabaseServer'
-import { archiveIceCream } from './actions'
+import { Link } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { archiveItem, selectActiveItems } from '@/store/slices/inventorySlice'
 
-export const dynamic = 'force-dynamic'
-
-export default async function InventoryPage() {
-  const supabase = await createClient()
-  const { data: items } = await supabase
-    .from('ice_creams')
-    .select('*')
-    .eq('archived', false)
-    .order('name')
+export default function InventoryPage() {
+  const dispatch = useAppDispatch()
+  const items = useAppSelector(selectActiveItems)
 
   return (
     <div>
@@ -19,7 +13,7 @@ export default async function InventoryPage() {
           Inventory
         </h1>
         <Link
-          href="/staff/inventory/new"
+          to="/staff/inventory/new"
           className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
           style={{ background: 'var(--accent)' }}
         >
@@ -27,7 +21,7 @@ export default async function InventoryPage() {
         </Link>
       </div>
 
-      {!items?.length ? (
+      {!items.length ? (
         <p className="text-sm" style={{ color: 'var(--text)' }}>No items yet. Add your first ice cream.</p>
       ) : (
         <div className="overflow-x-auto rounded-xl border" style={{ borderColor: 'var(--border)' }}>
@@ -51,21 +45,20 @@ export default async function InventoryPage() {
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <Link
-                        href={`/staff/inventory/${item.id}/edit`}
+                        to={`/staff/inventory/${item.id}/edit`}
                         className="px-3 py-1 rounded-lg text-xs font-medium border"
                         style={{ borderColor: 'var(--border)', color: 'var(--text-h)' }}
                       >
                         Edit
                       </Link>
-                      <form action={archiveIceCream.bind(null, item.id)}>
-                        <button
-                          type="submit"
-                          className="px-3 py-1 rounded-lg text-xs font-medium"
-                          style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}
-                        >
-                          Archive
-                        </button>
-                      </form>
+                      <button
+                        type="button"
+                        onClick={() => dispatch(archiveItem(item.id))}
+                        className="px-3 py-1 rounded-lg text-xs font-medium"
+                        style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}
+                      >
+                        Archive
+                      </button>
                     </div>
                   </td>
                 </tr>

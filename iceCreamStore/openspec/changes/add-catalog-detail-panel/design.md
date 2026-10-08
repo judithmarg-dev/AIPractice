@@ -33,24 +33,23 @@
 └─────────────────────────────────┴──────────────┘
 ```
 
-### Mobile Layout (Full Width)
+### Tablet Layout (primary design target, 768px – 1023px)
 ```
-┌─────────────────────────────────┐
-│     Catalog Grid (2-3 cols)     │
-│                                 │
-├─────────────────────────────────┤
-│                                 │
-│   Detail Panel Drawer (Full)    │
-│                                 │
-└─────────────────────────────────┘
+┌─────────────────────────────────┬──────────────┐
+│                                 │              │
+│     Catalog Grid (3-4 cols)     │   Detail     │
+│                                 │   Panel      │
+│                                 │   (~300px)   │
+│                                 │              │
+└─────────────────────────────────┴──────────────┘
 ```
 
 ## Styling Approach
 
-### Responsive Breakpoints
-- Mobile: < 768px
-- Tablet: 768px - 1023px  
+### Breakpoints
+- Tablet (primary target): 768px – 1023px
 - Desktop: ≥ 1024px
+- Mobile (< 768px): **out of scope** — not a target viewport for this staff-admin tool
 
 ### Detail Panel Styling
 - Background: Light (white) / Dark mode: dark gray
@@ -79,18 +78,13 @@
 - Catalog columns: 3-4 instead of 6
 - May need absolute positioning if space is tight
 
-### Mobile (< 768px)
-- Full width catalog grid (2-3 columns)
-- Panel as overlay drawer from bottom
-- Panel height: ~60-70% of viewport
-- Can implement slide-up animation
-- Backdrop overlay for dismissal
-- Option: Full-screen modal for detail view
+### Mobile (< 768px) — out of scope
+- Not a target viewport; no mobile-specific layout required
 
 ## CSS Classes Structure
 ```
 .flavor-detail-panel
-  .flavor-detail-panel__overlay (mobile only, click to close)
+  .flavor-detail-panel__overlay (backdrop click to close)
   .flavor-detail-panel__content
     .flavor-detail-panel__header
       .flavor-detail-panel__title
@@ -104,9 +98,9 @@
 ## Interaction Patterns
 
 ### Mouse/Touch
-1. User clicks flavor card → Panel slides in, card shows selected state
+1. Staff clicks flavor card → Panel slides in, card shows selected state
 2. User clicks close button → Panel slides out
-3. User clicks outside panel → Panel closes (mobile)
+3. Staff clicks outside panel → Panel closes
 4. User selects different card → Panel content updates smoothly
 
 ### Keyboard

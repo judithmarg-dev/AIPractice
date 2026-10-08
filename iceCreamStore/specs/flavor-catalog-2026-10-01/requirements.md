@@ -2,13 +2,13 @@
 
 ## Scope
 
-Customers can browse the ice cream catalog. All data is static (front-end only, no backend).
+Staff can browse and present the ice cream catalog to customers at the counter. All data is static (front-end only, no backend).
 
 ### In scope
 - Flavor list page: name, description, image placeholder per flavor
 - Size picker: Small / Medium / Large (UI selection, no pricing logic yet)
 - Category filter: fruit, chocolate, classic (at minimum); filter is additive / single-select
-- Responsive layout: works on mobile and modern desktop browsers
+- Tablet-first layout: base design targets ≥ 768 px; scales up to desktop (< 768 px is out of scope)
 
 ### Out of scope
 - Cart, add-to-order, or checkout flow (deferred to a later phase)
@@ -41,4 +41,4 @@ Sizes are a static constant (not in the JSON): `["small", "medium", "large"]`.
 
 ## Audience alignment (mission.md)
 
-This phase serves **clients** exclusively. Owners gain no new visibility here — that comes in P3+ with inventory and analytics. Every UI decision should optimise for a smooth, low-friction browsing experience.
+This phase serves **staff**. They use the catalog at the counter to help customers choose and to verify the current menu. Every UI decision should optimise for a quick, low-friction tablet experience. Owners gain deeper visibility starting in P3+ with inventory and analytics.

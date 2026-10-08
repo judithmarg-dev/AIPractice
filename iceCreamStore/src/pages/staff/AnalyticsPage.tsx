@@ -1,3 +1,6 @@
+import { useAppSelector } from '@/store/hooks'
+import { selectAllBookings } from '@/store/slices/bookingsSlice'
+import { selectActiveItems } from '@/store/slices/inventorySlice'
 import {
   getBookingsByDay,
   getBookingsByTimeSlot,
@@ -10,18 +13,17 @@ import { StatTile } from '@/components/staff/StatTile'
 import { BookingTrendChart } from '@/components/charts/BookingTrendChart'
 import { TimeSlotChart } from '@/components/charts/TimeSlotChart'
 import { DayOfWeekChart } from '@/components/charts/DayOfWeekChart'
-import { ExportButton } from './ExportButton'
+import { ExportButton } from '@/components/staff/ExportButton'
 
-export const dynamic = 'force-dynamic'
+export default function AnalyticsPage() {
+  const bookings = useAppSelector(selectAllBookings)
+  const items = useAppSelector(selectActiveItems)
 
-export default async function AnalyticsPage() {
-  const [byDay, bySlot, byDow, lowStock, summary] = await Promise.all([
-    getBookingsByDay(30),
-    getBookingsByTimeSlot(),
-    getBookingsByDayOfWeek(),
-    getLowStockItems(),
-    getAnalyticsSummary(),
-  ])
+  const byDay = getBookingsByDay(bookings, 30)
+  const bySlot = getBookingsByTimeSlot(bookings)
+  const byDow = getBookingsByDayOfWeek(bookings)
+  const lowStock = getLowStockItems(items)
+  const summary = getAnalyticsSummary(bookings, items)
 
   return (
     <div className="flex flex-col gap-8">

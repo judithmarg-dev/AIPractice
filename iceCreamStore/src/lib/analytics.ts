@@ -1,36 +1,28 @@
-import { createClient } from '@/lib/supabaseServer'
+import type { Booking } from '@/types/booking'
+import type { IceCream } from '@/types/iceCream'
 import type { DailyCount, SlotCount, DayCount, LowStockItem, AnalyticsSummary } from '@/types/analytics'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 export const LOW_STOCK_THRESHOLD = 5
 
-export async function getBookingsByDay(daysBack = 30): Promise<DailyCount[]> {
-  const supabase = await createClient()
+export function getBookingsByDay(bookings: Booking[], daysBack = 30): DailyCount[] {
   const since = new Date()
   since.setDate(since.getDate() - daysBack)
+  const sinceStr = since.toISOString().slice(0, 10)
 
-  const { data } = await supabase
-    .from('bookings')
-    .select('date')
-    .gte('date', since.toISOString().slice(0, 10))
-    .order('date')
-
-  if (!data) return []
-
+  const filtered = bookings.filter((b) => b.date >= sinceStr)
   const counts: Record<string, number> = {}
-  for (const row of data) {
+  for (const row of filtered) {
     counts[row.date] = (counts[row.date] ?? 0) + 1
   }
-  return Object.entries(counts).map(([date, count]) => ({ date, count }))
+  return Object.entries(counts)
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => a.date.localeCompare(b.date))
 }
 
-export async function getBookingsByTimeSlot(): Promise<SlotCount[]> {
-  const supabase = await createClient()
-  const { data } = await supabase.from('bookings').select('time')
-  if (!data) return []
-
+export function getBookingsByTimeSlot(bookings: Booking[]): SlotCount[] {
   const counts: Record<string, number> = {}
-  for (const row of data) {
+  for (const row of bookings) {
     counts[row.time] = (counts[row.time] ?? 0) + 1
   }
   return Object.entries(counts)
@@ -38,51 +30,42 @@ export async function getBookingsByTimeSlot(): Promise<SlotCount[]> {
     .sort((a, b) => a.time.localeCompare(b.time))
 }
 
-export async function getBookingsByDayOfWeek(): Promise<DayCount[]> {
-  const supabase = await createClient()
-  const { data } = await supabase.from('bookings').select('date')
-  if (!data) return []
-
+export function getBookingsByDayOfWeek(bookings: Booking[]): DayCount[] {
   const counts: number[] = Array(7).fill(0)
-  for (const row of data) {
+  for (const row of bookings) {
     const dow = new Date(row.date + 'T12:00:00').getDay()
     counts[dow]++
   }
   return DAYS.map((day, i) => ({ day, count: counts[i] }))
 }
 
-export async function getLowStockItems(): Promise<LowStockItem[]> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('ice_creams')
-    .select('id, name, category, inventory_count')
-    .eq('archived', false)
-    .lte('inventory_count', LOW_STOCK_THRESHOLD)
-    .order('inventory_count')
-  return data ?? []
+export function getLowStockItems(items: IceCream[]): LowStockItem[] {
+  return items
+    .filter((i) => i.inventory_count <= LOW_STOCK_THRESHOLD)
+    .sort((a, b) => a.inventory_count - b.inventory_count)
+    .map((i) => ({
+      id: i.id,
+      name: i.name,
+      category: i.category,
+      inventory_count: i.inventory_count,
+    }))
 }
 
-export async function getAnalyticsSummary(): Promise<AnalyticsSummary> {
-  const supabase = await createClient()
-
+export function getAnalyticsSummary(bookings: Booking[], items: IceCream[]): AnalyticsSummary {
   const weekAgo = new Date()
   weekAgo.setDate(weekAgo.getDate() - 7)
+  const weekAgoStr = weekAgo.toISOString()
 
-  const [{ count: totalThisWeek }, slotData, lowStock] = await Promise.all([
-    supabase
-      .from('bookings')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', weekAgo.toISOString()),
-    getBookingsByTimeSlot(),
-    getLowStockItems(),
-  ])
+  const totalThisWeek = bookings.filter((b) => b.created_at >= weekAgoStr).length
+  const slotData = getBookingsByTimeSlot(bookings)
+  const lowStock = getLowStockItems(items)
 
   const mostPopularSlot = slotData.length
     ? slotData.reduce((a, b) => (b.count > a.count ? b : a)).time
     : null
 
   return {
-    totalThisWeek: totalThisWeek ?? 0,
+    totalThisWeek,
     mostPopularSlot,
     lowStockCount: lowStock.length,
   }

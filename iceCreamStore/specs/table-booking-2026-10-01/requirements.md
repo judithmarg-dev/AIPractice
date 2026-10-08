@@ -2,13 +2,13 @@
 
 ## Scope
 
-Customers can reserve a table using a front-end form. All data is stored in local React state only — no backend, no persistence.
+Staff can enter a table reservation on behalf of a customer using a front-end form. All data is stored in local React state only — no backend, no persistence.
 
 ### In scope
-- Booking form: date, time (30-minute increments), party size, name, email, phone number
+- Staff-side booking entry form: date, time (30-minute increments), party size, customer name, email, phone number
 - Client-side validation on all fields
-- Confirmation / success screen shown after a valid submission
-- Responsive layout: mobile and modern desktop
+- Confirmation / success screen shown to staff after a valid submission
+- Tablet-first layout: base design targets ≥ 768 px; scales up to desktop (< 768 px is out of scope)
 
 ### Out of scope
 - Real persistence or backend of any kind (deferred to P3)
@@ -43,4 +43,4 @@ On valid submission the form writes the booking object to React state (or a simp
 
 ## Audience alignment (mission.md)
 
-This phase serves **clients** — they can express intent to visit. Owners gain no new visibility here; that comes in P4 when the order queue surfaces booking data.
+This phase serves **staff** — they record customer reservations at the counter or over the phone. Owners gain visibility into those bookings starting in P4 when the order queue surfaces booking data.

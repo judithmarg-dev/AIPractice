@@ -65,4 +65,4 @@ Staff can manage the ice cream catalog (add, edit, archive items) through a prot
 
 ## Audience alignment (mission.md)
 
-This phase serves **store owners**: they can maintain the catalog and have bookings persisted (in-memory) for operational visibility. The customer experience (P1 catalog, P2 booking) is unchanged from the outside.
+This phase serves **staff and owners**: they can maintain the catalog and have bookings persisted (in-memory) for operational visibility. The P1 catalog and P2 booking entry tools remain unchanged for staff users.

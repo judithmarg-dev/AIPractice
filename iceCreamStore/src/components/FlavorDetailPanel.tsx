@@ -1,3 +1,4 @@
+import { useEffect, useRef, useCallback } from 'react'
 import type { Flavor, Size } from '../types/flavor'
 
 interface FlavorDetailPanelProps {
@@ -7,6 +8,40 @@ interface FlavorDetailPanelProps {
 }
 
 export function FlavorDetailPanel({ flavor, onClose, selectedSize }: FlavorDetailPanelProps) {
+  const panelRef = useRef<HTMLElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  const trapFocus = useCallback((e: KeyboardEvent) => {
+    if (e.key !== 'Tab' || !panelRef.current) return
+    const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    if (focusable.length === 0) return
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!flavor) return
+    previousFocusRef.current = document.activeElement as HTMLElement
+    const mql = window.matchMedia('(max-width: 767px)')
+    if (mql.matches) {
+      panelRef.current?.querySelector<HTMLElement>('button')?.focus()
+      document.addEventListener('keydown', trapFocus)
+    }
+    return () => {
+      document.removeEventListener('keydown', trapFocus)
+      previousFocusRef.current?.focus()
+    }
+  }, [flavor, trapFocus])
+
   if (!flavor) {
     return <aside className="flavor-detail-panel" />
   }
@@ -18,7 +53,7 @@ export function FlavorDetailPanel({ flavor, onClose, selectedSize }: FlavorDetai
   }
 
   return (
-    <aside className="flavor-detail-panel" aria-label="Flavor details" data-visible>
+    <aside className="flavor-detail-panel" aria-label="Flavor details" data-visible ref={panelRef}>
       <div className="flavor-detail-panel__overlay" onClick={onClose} aria-hidden="true" />
       <div className="flavor-detail-panel__content">
         <header className="flavor-detail-panel__header">

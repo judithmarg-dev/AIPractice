@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import '../catalog.css'
 import flavorsData from '../data/flavors.json'
 import type { Flavor, FlavorCategory, Size } from '../types/flavor'
 import { CategoryFilter } from '../components/CategoryFilter'

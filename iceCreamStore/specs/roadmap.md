@@ -14,19 +14,19 @@ _Goal: runnable repo, shared conventions, CI green._
 - CI pipeline (lint + type-check)
 
 ## P1 — Flavor catalog
-_Goal: customers can browse ice creams (static data)._
+_Goal: staff can browse and present the ice cream catalog (static data)._
 
 - Flavor list page with name, description, image placeholder
 - Size picker (small / medium / large)
 - Filter by flavor category (fruit, chocolate, classic, …)
-- Responsive layout (Steve's modern-browser requirement)
+- Tablet-first layout (base design targets ≥ 768 px; adapts up to desktop)
 
 ## P2 — Table booking
-_Goal: customers can reserve a table (front-end form, no persistence yet)._
+_Goal: staff can enter a table reservation on behalf of a customer (front-end form, no persistence yet)._
 
-- Booking form: date, time, party size, name, contact
+- Staff-side booking entry form: date, time, party size, customer name and contact
 - Client-side validation
-- Confirmation screen / success state
+- Confirmation screen / success state visible to staff
 - Stub: form submits to local React state (booking lost on page reload)
 
 ## P3 — Inventory CRUD
@@ -66,3 +66,4 @@ _Goal: managers get actionable insights (Steve's marketing + Mary's dashboard)._
 | Date | Decision | Reason |
 |---|---|---|
 | 2026-10-07 | Remove Supabase + Next.js; replace with Redux Toolkit | App failed to run after Supabase and Next.js were added. Reverting to Vite + React; managing state in-memory with Redux Toolkit. Backend strategy re-evaluated post-MVP. |
+| 2026-10-08 | Narrow scope to staff-admin only; adopt tablet-first design | Customers are no longer a user type of the app. All screens are designed for a staff member or owner on a tablet (≥ 768 px base). P1 catalog and P2 booking become staff-side tools; customer-facing framing removed from all specs. Mobile (< 768 px) breakpoints are out of scope. |

@@ -37,4 +37,4 @@ The P2 booking form does not capture which flavors a customer wants. To populate
 
 ## Audience alignment (mission.md)
 
-This phase serves **store owners** exclusively — it gives them the stocking and trend data needed for business decisions. The customer experience is unchanged.
+This phase serves **staff and owners** — it gives them the stocking and trend data needed for business decisions. No customer-facing surface exists in this app.

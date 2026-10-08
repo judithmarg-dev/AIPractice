@@ -1,21 +1,19 @@
-'use client'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useNavigate, Link } from 'react-router-dom'
 import type { BookingFormData } from '@/types/booking'
 
 export default function BookingConfirmationPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [booking, setBooking] = useState<BookingFormData | null>(null)
 
   useEffect(() => {
     const raw = sessionStorage.getItem('booking_confirmation')
     if (!raw) {
-      router.replace('/booking')
+      navigate('/booking', { replace: true })
       return
     }
     setBooking(JSON.parse(raw) as BookingFormData)
-  }, [router])
+  }, [navigate])
 
   if (!booking) return null
 
@@ -58,7 +56,7 @@ export default function BookingConfirmationPage() {
         </dl>
 
         <Link
-          href="/"
+          to="/"
           className="block w-full text-center py-3 rounded-xl font-semibold text-sm text-white"
           style={{ background: 'var(--accent)' }}
         >

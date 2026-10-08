@@ -1,51 +1,19 @@
-'use client'
-import { useState, useEffect, useTransition } from 'react'
-import type { Booking, BookingStatus } from '@/types/booking'
-import { StatusBadge } from './StatusBadge'
-import { updateStatus } from '@/app/staff/bookings/actions'
-import { createClient } from '@/lib/supabaseClient'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { selectAllBookings, updateBookingStatus } from '@/store/slices/bookingsSlice'
+import { StatusBadge } from '@/components/staff/StatusBadge'
+import type { BookingStatus } from '@/types/booking'
 
-export function BookingQueueClient({ initialBookings }: { initialBookings: Booking[] }) {
-  const [bookings, setBookings] = useState(initialBookings)
-  const [newCount, setNewCount] = useState(0)
-  const [isPending, startTransition] = useTransition()
+export default function BookingsPage() {
+  const dispatch = useAppDispatch()
+  const bookings = useAppSelector(selectAllBookings)
 
-  useEffect(() => {
-    const supabase = createClient()
-    const channel = supabase
-      .channel('bookings-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, (payload) => {
-        setBookings((prev) => [payload.new as Booking, ...prev])
-        setNewCount((c) => c + 1)
-      })
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [])
-
-  function handleStatusChange(id: string, next: BookingStatus) {
-    const prev = bookings.find((b) => b.id === id)?.status
-    setBookings((bs) => bs.map((b) => b.id === id ? { ...b, status: next } : b))
-
-    startTransition(async () => {
-      try {
-        await updateStatus(id, next)
-      } catch {
-        if (prev) setBookings((bs) => bs.map((b) => b.id === id ? { ...b, status: prev } : b))
-      }
-    })
+  function handleStatusChange(id: string, status: BookingStatus) {
+    dispatch(updateBookingStatus({ id, status }))
   }
 
   return (
     <div>
-      {newCount > 0 && (
-        <div
-          className="mb-4 px-4 py-2 rounded-lg text-sm"
-          style={{ background: 'var(--accent-bg)', color: 'var(--accent)' }}
-        >
-          {newCount} new booking{newCount !== 1 ? 's' : ''} arrived — list updated automatically.
-        </div>
-      )}
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-h)' }}>Bookings</h1>
 
       <div className="overflow-x-auto rounded-xl border" style={{ borderColor: 'var(--border)' }}>
         <table className="w-full text-sm">
@@ -58,7 +26,7 @@ export function BookingQueueClient({ initialBookings }: { initialBookings: Booki
           </thead>
           <tbody>
             {bookings.map((b) => (
-              <tr key={b.id} style={{ borderBottom: '1px solid var(--border)', opacity: isPending ? 0.7 : 1 }}>
+              <tr key={b.id} style={{ borderBottom: '1px solid var(--border)' }}>
                 <td className="px-4 py-3 font-medium" style={{ color: 'var(--text-h)' }}>
                   {b.first_name} {b.last_name}
                 </td>

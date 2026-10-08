@@ -49,16 +49,8 @@
 - [x] Ensure content remains readable and accessible
 - [x] Test on actual tablet devices or emulation
 
-### Task 2.3: Mobile Layout (< 768px)
-**Effort: 2 hours**
-- [x] Add media query for mobile breakpoint
-- [x] Convert desktop grid layout to mobile drawer layout
-- [x] Position detail panel as overlay from bottom
-- [x] Add backdrop overlay (semi-transparent)
-- [x] Implement smooth slide-up animation
-- [x] Handle safe area on devices with notches
-- [x] Ensure close button is easily accessible
-- [x] Test scrolling behavior in panel
+### Task 2.3: Mobile Layout (< 768px) — ~~completed~~ OBSOLETE (2026-10-08)
+**Out of scope:** Mobile viewport removed from target by mission change. Completed work for the mobile drawer is superseded; tablet (768px) is now the smallest supported breakpoint. No regression fix required — the mobile CSS will not be served to target devices, but may be left in place or removed in a cleanup pass.
 
 ## Phase 3: Interactivity & State Management
 
@@ -71,11 +63,10 @@
 - [x] Ensure close button is focusable and clickable
 - [x] Test Tab key navigation through all interactive elements
 
-### Task 3.2: Click-Outside Dismissal (Mobile)
+### Task 3.2: Click-Outside Dismissal
 **Effort: 0.5 hours**
-- [x] Add backdrop overlay click handler for mobile
+- [x] Add backdrop overlay click handler
 - [x] Clicking overlay dismisses panel
-- [x] Ensure overlay only appears on mobile
 
 ### Task 3.3: Panel Content Display
 **Effort: 1 hour**
@@ -92,7 +83,7 @@
 **Effort: 1 hour**
 - [x] Add CSS transitions for panel slide-in/slide-out
 - [x] Smooth grid layout adjustment when panel appears/disappears
-- [x] Panel entrance animation: slide from right (desktop) or bottom (mobile)
+- [x] Panel entrance animation: slide from right (tablet and desktop)
 - [x] Ensure animations don't cause performance issues
 - [x] Set reasonable transition duration (200-400ms)
 
@@ -107,30 +98,30 @@
 **Effort: 1.5 hours**
 - [ ] Test on desktop browsers (Chrome, Firefox, Safari)
 - [ ] Test on tablet screen sizes (iPad-like, 768px)
-- [ ] Test on mobile screen sizes (iPhone-like, 375px, 425px)
-- [ ] Test landscape orientation on mobile
+- [ ] ~~Test on mobile screen sizes (iPhone-like, 375px, 425px)~~ — out of scope (2026-10-08)
+- [ ] ~~Test landscape orientation on mobile~~ — out of scope (2026-10-08)
 - [ ] Test with browser devtools responsive design mode
 - [ ] Verify no layout shifts or scrolling issues
 - [ ] Check that all interactive elements remain accessible
 
 ### Task 4.4: Accessibility Testing
 **Effort: 1 hour**
-- [ ] Test keyboard navigation (Tab, Shift+Tab, Enter, Escape)
-- [ ] Verify close button has proper aria-label
+- [x] Test keyboard navigation (Tab, Shift+Tab, Enter, Escape)
+- [x] Verify close button has proper aria-label
 - [ ] Check color contrast ratios meet WCAG AA standards
 - [ ] Test with screen reader (if available)
-- [ ] Ensure semantic HTML structure
-- [ ] Verify focus management (focus trap in modal on mobile)
+- [x] Ensure semantic HTML structure
+- [x] Verify focus management when panel is open
 
 ## Phase 5: Integration & QA
 
 ### Task 5.1: End-to-End Testing
 **Effort: 1 hour**
-- [ ] Click flavor card → panel opens with correct data ✓
-- [ ] Click close button → panel closes ✓
-- [ ] Click different card → panel updates to new flavor ✓
-- [ ] Click same card again → panel closes ✓
-- [ ] Press Escape → panel closes ✓
+- [x] Click flavor card → panel opens with correct data ✓
+- [x] Click close button → panel closes ✓
+- [x] Click different card → panel updates to new flavor ✓
+- [x] Click same card again → panel closes ✓
+- [x] Press Escape → panel closes ✓
 - [ ] Scroll catalog while panel is open → panel remains visible (desktop)
 - [ ] Test on multiple device sizes with real data
 

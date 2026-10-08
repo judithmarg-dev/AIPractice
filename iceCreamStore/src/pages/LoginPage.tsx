@@ -1,28 +1,25 @@
-'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabaseClient'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { login } from '@/store/slices/authSlice'
 
 export default function LoginPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
+  const authError = useAppSelector((state) => state.auth.error)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
-    const supabase = createClient()
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-    if (authError) {
-      setError('Invalid email or password.')
-      setLoading(false)
-      return
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/staff/inventory', { replace: true })
     }
-    router.push('/staff/inventory')
-    router.refresh()
+  }, [isAuthenticated, navigate])
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    dispatch(login({ email, password }))
   }
 
   return (
@@ -54,19 +51,18 @@ export default function LoginPage() {
             </div>
           ))}
 
-          {error && (
+          {authError && (
             <p className="text-xs rounded px-3 py-2" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
-              {error}
+              {authError}
             </p>
           )}
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full py-2.5 rounded-xl font-semibold text-white text-sm mt-2 disabled:opacity-60"
+            className="w-full py-2.5 rounded-xl font-semibold text-white text-sm mt-2"
             style={{ background: 'var(--accent)' }}
           >
-            {loading ? 'Signing in…' : 'Sign in'}
+            Sign in
           </button>
         </form>
       </div>

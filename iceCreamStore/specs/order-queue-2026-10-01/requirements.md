@@ -37,4 +37,4 @@ Transitions not in the list above are invalid and must be blocked in the UI.
 
 ## Audience alignment (mission.md)
 
-This phase serves **store owners**: they gain the operational visibility needed to confirm or cancel reservations. Clients are unaffected (no customer-facing change in this phase).
+This phase serves **staff and owners**: they gain the operational visibility needed to confirm or cancel reservations. No customer-facing surface exists in this app.

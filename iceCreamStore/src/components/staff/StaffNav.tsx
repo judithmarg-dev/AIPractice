@@ -1,7 +1,6 @@
-'use client'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabaseClient'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAppDispatch } from '@/store/hooks'
+import { logout } from '@/store/slices/authSlice'
 
 const NAV = [
   { href: '/staff/inventory', label: 'Inventory' },
@@ -10,14 +9,13 @@ const NAV = [
 ]
 
 export function StaffNav() {
-  const pathname = usePathname()
-  const router = useRouter()
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
-  async function signOut() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
+  function signOut() {
+    dispatch(logout())
+    navigate('/login')
   }
 
   return (
@@ -26,13 +24,13 @@ export function StaffNav() {
       style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}
     >
       <div className="flex items-center gap-1">
-        <Link href="/" className="text-sm font-bold mr-4" style={{ color: 'var(--accent)' }}>
+        <Link to="/" className="text-sm font-bold mr-4" style={{ color: 'var(--accent)' }}>
           🍦 ICS
         </Link>
         {NAV.map(({ href, label }) => (
           <Link
             key={href}
-            href={href}
+            to={href}
             className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
             style={{
               background: pathname.startsWith(href) ? 'var(--accent-bg)' : 'transparent',

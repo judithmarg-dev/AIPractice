@@ -19,7 +19,7 @@
 8. `BookingFormPage` — composes all field components into a single `<form>`
 9. Wire client-side validation: validate on submit, display per-field error messages, block submission while invalid
 10. On valid submit: call `bookingService.submitBooking`, then transition to confirmation screen
-11. Responsive layout: single column on mobile, two-column field grid on desktop
+11. Tablet-first layout: two-column field grid at ≥ 768 px; full-width adapts up on desktop; sub-768 px is out of scope
 
 ## Group 4 — Confirmation screen
 
@@ -29,7 +29,7 @@
 ## Group 5 — Integration & polish
 
 14. Add route for `/booking` and `/booking/confirmation` in `App.tsx` (or equivalent router config)
-15. Add a "Book a Table" call-to-action on the Flavor Catalog page linking to `/booking`
+15. Add a staff-navigation link from the Flavor Catalog page to the booking entry form (`/booking`)
 16. Run `pnpm lint` and `pnpm tsc --noEmit`; fix any issues
 17. Manual validation pass against `validation.md` checklist
 18. Commit and open PR

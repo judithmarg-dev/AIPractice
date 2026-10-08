@@ -12,8 +12,8 @@ P2 is ready to merge when **all** of the following pass.
 
 | Scenario | Expected result |
 |---|---|
+| Load `/booking` on tablet (768 px – 1023 px) | Form renders correctly; all fields visible; no horizontal scroll |
 | Load `/booking` on desktop (≥ 1024 px) | Form renders in two-column layout; all fields visible |
-| Load `/booking` on mobile (≤ 375 px) | Form stacks to single column; no horizontal scroll |
 | Submit form with all fields empty | Per-field error messages appear; form does not advance |
 | Enter a past date and submit | Date field shows a validation error |
 | Enter an invalid email (no `@`) and submit | Email field shows a validation error |
