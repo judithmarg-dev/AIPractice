@@ -30,6 +30,11 @@ export function ScoopIcon({ size = 52 }: { size?: number }) {
 }
 
 export function FlavorTile({ flavor, index, isSelected = false, soldOut = false, onClick }: FlavorTileProps) {
+  const priceLabel =
+    flavor.category === 'artesanal'
+      ? `$${flavor.price.toFixed(2)} / bola`
+      : `$${flavor.price.toFixed(2)}`
+
   return (
     <article
       className={`flavor-tile${isSelected ? ' flavor-tile--selected' : ''}`}
@@ -38,7 +43,7 @@ export function FlavorTile({ flavor, index, isSelected = false, soldOut = false,
       role="button"
       tabIndex={0}
       aria-expanded={isSelected}
-      aria-label={`${flavor.name}${soldOut ? ', sold out' : ''}`}
+      aria-label={`${flavor.name}, ${priceLabel}${soldOut ? ', agotado' : ''}`}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && onClick) {
           e.preventDefault()
@@ -47,10 +52,11 @@ export function FlavorTile({ flavor, index, isSelected = false, soldOut = false,
       }}
     >
       <div className="flavor-tile__image" aria-hidden="true">
-        <ScoopIcon />
+        {flavor.image ? <img src={flavor.image} alt="" /> : <ScoopIcon />}
       </div>
       <h3 className="flavor-tile__name">{flavor.name}</h3>
-      {soldOut && <span className="flavor-tile__note">Sold out</span>}
+      <span className="flavor-tile__price">{priceLabel}</span>
+      {soldOut && <span className="flavor-tile__note">Agotado</span>}
     </article>
   )
 }

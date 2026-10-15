@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { InventoryForm } from '@/components/staff/InventoryForm'
+import { InventoryForm, readImageFromForm } from '@/components/staff/InventoryForm'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { updateItem, selectItemById } from '@/store/slices/inventorySlice'
 
@@ -21,12 +21,16 @@ export default function EditItemPage() {
   }
 
   async function action(formData: FormData) {
+    const image = await readImageFromForm(formData)
     dispatch(updateItem({
       ...item!,
       name: formData.get('name') as string,
       description: formData.get('description') as string,
       category: formData.get('category') as string,
-      image_placeholder: formData.get('imagePlaceholder') as string || '#9ca3af',
+      image_placeholder: (formData.get('imagePlaceholder') as string) || '#9ca3af',
+      price: parseFloat(formData.get('price') as string) || 0,
+      image,
+      container: (formData.get('container') as string).trim() || undefined,
       inventory_count: parseInt(formData.get('inventoryCount') as string) || 0,
     }))
     navigate('/staff/inventory')
@@ -45,6 +49,9 @@ export default function EditItemPage() {
           description: item.description,
           category: item.category,
           imagePlaceholder: item.image_placeholder,
+          image: item.image,
+          price: item.price,
+          container: item.container,
           inventoryCount: item.inventory_count,
         }}
       />

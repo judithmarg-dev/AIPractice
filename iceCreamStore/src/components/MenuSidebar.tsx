@@ -47,8 +47,8 @@ export function MenuSidebar({ sections }: MenuSidebarProps) {
   }
 
   return (
-    <nav className="menu-sidebar" aria-label="Menu sections">
-      <h2 className="menu-sidebar__heading">Flavors</h2>
+    <nav className="menu-sidebar" aria-label="Categorías del menú">
+      <h2 className="menu-sidebar__heading">Categorías</h2>
       <ul className="menu-sidebar__list">
         {sections.map(({ id, label }) => {
           const active = id === activeId

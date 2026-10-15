@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { archiveItem, selectActiveItems } from '@/store/slices/inventorySlice'
+import { categoryLabel } from '@/types/flavor'
 
 export default function InventoryPage() {
   const dispatch = useAppDispatch()
@@ -28,7 +29,7 @@ export default function InventoryPage() {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--accent-bg)' }}>
-                {['Name', 'Category', 'Stock', 'Actions'].map((h) => (
+                {['Name', 'Category', 'Price', 'Stock', 'Actions'].map((h) => (
                   <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-h)' }}>{h}</th>
                 ))}
               </tr>
@@ -37,7 +38,8 @@ export default function InventoryPage() {
               {items.map((item) => (
                 <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td className="px-4 py-3 font-medium" style={{ color: 'var(--text-h)' }}>{item.name}</td>
-                  <td className="px-4 py-3 capitalize" style={{ color: 'var(--text)' }}>{item.category}</td>
+                  <td className="px-4 py-3" style={{ color: 'var(--text)' }}>{categoryLabel(item.category)}</td>
+                  <td className="px-4 py-3" style={{ color: 'var(--text)' }}>${item.price.toFixed(2)}</td>
                   <td className="px-4 py-3" style={{ color: item.inventory_count <= 5 ? '#ef4444' : 'var(--text)' }}>
                     {item.inventory_count}
                     {item.inventory_count <= 5 && <span className="ml-1 text-xs">⚠ low</span>}

@@ -1,25 +1,33 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
-import { Link } from 'react-router-dom'
-import type { Flavor, Size } from '../types/flavor'
+import type { Flavor, Scoops } from '../types/flavor'
+import { categoryLabel } from '../types/flavor'
+import { useAppDispatch } from '@/store/hooks'
+import { addLine } from '@/store/slices/orderSlice'
 import { ScoopIcon } from './FlavorTile'
-import { SizePicker } from './SizePicker'
+import { ScoopPicker } from './ScoopPicker'
+import { OrderPanel } from './OrderPanel'
 
 interface FlavorDetailPanelProps {
+  /** Item being configured, or null when the panel only shows the order. */
   flavor: Flavor | null
+  /** Whether to show the order block under the item. */
+  showOrder: boolean
   onClose: () => void
 }
 
 const OVERLAY_QUERY = '(max-width: 1023px)'
+const money = (n: number) => `$${n.toFixed(2)}`
 
-export function FlavorDetailPanel({ flavor, onClose }: FlavorDetailPanelProps) {
-  const [selectedSize, setSelectedSize] = useState<Size>('medium')
+export function FlavorDetailPanel({ flavor, showOrder, onClose }: FlavorDetailPanelProps) {
+  const dispatch = useAppDispatch()
+  const [scoops, setScoops] = useState<Scoops>(2)
   const panelRef = useRef<HTMLElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
   const trapFocus = useCallback((e: KeyboardEvent) => {
     if (e.key !== 'Tab' || !panelRef.current) return
     const focusable = panelRef.current.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     )
     if (focusable.length === 0) return
     const first = focusable[0]
@@ -35,7 +43,6 @@ export function FlavorDetailPanel({ flavor, onClose }: FlavorDetailPanelProps) {
 
   // Escape closes the panel whenever it is open, at every breakpoint.
   useEffect(() => {
-    if (!flavor) return
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
@@ -44,11 +51,10 @@ export function FlavorDetailPanel({ flavor, onClose }: FlavorDetailPanelProps) {
     }
     document.addEventListener('keydown', handleEscape)
     return () => document.removeEventListener('keydown', handleEscape)
-  }, [flavor, onClose])
+  }, [onClose])
 
   // Below desktop the panel is an overlay drawer: move focus in and trap it.
   useEffect(() => {
-    if (!flavor) return
     const mql = window.matchMedia(OVERLAY_QUERY)
     if (!mql.matches) return
     previousFocusRef.current = document.activeElement as HTMLElement
@@ -60,16 +66,39 @@ export function FlavorDetailPanel({ flavor, onClose }: FlavorDetailPanelProps) {
     }
   }, [flavor, trapFocus])
 
-  if (!flavor) return null
+  // Reset the scoop choice whenever a different item is opened.
+  useEffect(() => {
+    setScoops(2)
+  }, [flavor?.id])
+
+  const isArtesanal = flavor?.category === 'artesanal'
+  const unitPrice = flavor ? (isArtesanal ? flavor.price * scoops : flavor.price) : 0
+
+  const handleAdd = () => {
+    if (!flavor) return
+    const details: string[] = []
+    if (flavor.container) details.push(flavor.container)
+    if (isArtesanal) details.push(`${scoops} ${scoops === 1 ? 'bola' : 'bolas'}`)
+    dispatch(
+      addLine({
+        productId: flavor.id,
+        name: flavor.name,
+        details,
+        unitPrice,
+        scoops: isArtesanal ? scoops : undefined,
+      })
+    )
+    onClose()
+  }
 
   return (
-    <aside className="flavor-detail-panel" aria-label="Flavor details" ref={panelRef}>
+    <aside className="flavor-detail-panel" aria-label={flavor ? 'Detalle del producto' : 'Orden actual'} ref={panelRef}>
       <div className="flavor-detail-panel__overlay" onClick={onClose} aria-hidden="true" />
       <div className="flavor-detail-panel__content">
         <button
-          className="flavor-detail-panel__close-btn"
+          className={`flavor-detail-panel__close-btn${flavor ? '' : ' flavor-detail-panel__close-btn--plain'}`}
           onClick={onClose}
-          aria-label="Close flavor details"
+          aria-label={flavor ? 'Cerrar detalle' : 'Cerrar orden'}
           type="button"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -78,27 +107,39 @@ export function FlavorDetailPanel({ flavor, onClose }: FlavorDetailPanelProps) {
           </svg>
         </button>
 
-        <div
-          className="flavor-detail-panel__hero"
-          style={{ '--flavor-color': flavor.imagePlaceholder } as React.CSSProperties}
-          aria-hidden="true"
-        >
-          <ScoopIcon size={88} />
-        </div>
+        {flavor && (
+          <>
+            <div
+              className="flavor-detail-panel__hero"
+              style={{ '--flavor-color': flavor.imagePlaceholder } as React.CSSProperties}
+              aria-hidden="true"
+            >
+              {flavor.image ? <img src={flavor.image} alt="" /> : <ScoopIcon size={88} />}
+            </div>
 
-        <div className="flavor-detail-panel__body">
-          <span className="flavor-detail-panel__category">{flavor.category}</span>
-          <h2 className="flavor-detail-panel__title">{flavor.name}</h2>
-          <p className="flavor-detail-panel__description">{flavor.description}</p>
+            <div className="flavor-detail-panel__body">
+              <span className="flavor-detail-panel__category">{categoryLabel(flavor.category)}</span>
+              <h2 className="flavor-detail-panel__title">{flavor.name}</h2>
+              {flavor.container && (
+                <p className="flavor-detail-panel__container">{flavor.container}</p>
+              )}
+              <p className="flavor-detail-panel__description">{flavor.description}</p>
 
-          <SizePicker selected={selectedSize} onChange={setSelectedSize} />
+              {isArtesanal && (
+                <ScoopPicker selected={scoops} pricePerScoop={flavor.price} onChange={setScoops} />
+              )}
 
-          <div className="flavor-detail-panel__actions">
-            <Link to="/booking" className="flavor-detail-panel__action-btn">
-              Book a table
-            </Link>
-          </div>
-        </div>
+              <div className="flavor-detail-panel__actions">
+                <button type="button" className="flavor-detail-panel__action-btn" onClick={handleAdd}>
+                  <span>Agregar a la orden</span>
+                  <span className="flavor-detail-panel__action-price">{money(unitPrice)}</span>
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {showOrder && <OrderPanel />}
       </div>
     </aside>
   )

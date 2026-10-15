@@ -1,10 +1,6 @@
-import type { Size } from '../types/flavor'
+import type { Scoops } from '../types/flavor'
 
-const SIZES: { value: Size; label: string; scoops: number }[] = [
-  { value: 'small', label: 'Small', scoops: 1 },
-  { value: 'medium', label: 'Medium', scoops: 2 },
-  { value: 'large', label: 'Large', scoops: 3 },
-]
+const OPTIONS: Scoops[] = [1, 2, 3]
 
 function ConeIcon({ scoops }: { scoops: number }) {
   // Cone sits at the bottom; scoops stack upwards so larger sizes read taller.
@@ -35,29 +31,30 @@ function ConeIcon({ scoops }: { scoops: number }) {
   )
 }
 
-interface SizePickerProps {
-  selected: Size
-  onChange: (size: Size) => void
+interface ScoopPickerProps {
+  selected: Scoops
+  pricePerScoop: number
+  onChange: (scoops: Scoops) => void
 }
 
-export function SizePicker({ selected, onChange }: SizePickerProps) {
+export function ScoopPicker({ selected, pricePerScoop, onChange }: ScoopPickerProps) {
   return (
-    <div className="size-picker" role="group" aria-label="Select size">
-      <span className="size-picker__label">Size options</span>
+    <div className="size-picker" role="group" aria-label="Número de bolas">
+      <span className="size-picker__label">¿Cuántas bolas?</span>
       <div className="size-picker__buttons">
-        {SIZES.map(({ value, label, scoops }) => (
+        {OPTIONS.map((scoops) => (
           <button
-            key={value}
+            key={scoops}
             type="button"
-            className={`size-picker__btn${selected === value ? ' size-picker__btn--active' : ''}`}
-            onClick={() => onChange(value)}
-            aria-pressed={selected === value}
+            className={`size-picker__btn${selected === scoops ? ' size-picker__btn--active' : ''}`}
+            onClick={() => onChange(scoops)}
+            aria-pressed={selected === scoops}
           >
             <ConeIcon scoops={scoops} />
-            <span className="size-picker__name">{label}</span>
-            <span className="size-picker__meta">
-              {scoops} {scoops === 1 ? 'scoop' : 'scoops'}
+            <span className="size-picker__name">
+              {scoops} {scoops === 1 ? 'bola' : 'bolas'}
             </span>
+            <span className="size-picker__meta">${(pricePerScoop * scoops).toFixed(2)}</span>
           </button>
         ))}
       </div>

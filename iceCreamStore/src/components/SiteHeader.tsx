@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/store/hooks'
 
 const NAV = [
-  { href: '/', label: 'Menu', match: (p: string) => p === '/' },
-  { href: '/booking', label: 'Book a table', match: (p: string) => p.startsWith('/booking') },
+  { href: '/', label: 'Menú', match: (p: string) => p === '/' },
+  { href: '/booking', label: 'Reservar', match: (p: string) => p.startsWith('/booking') },
 ]
 
 export function SiteHeader() {
@@ -38,11 +38,11 @@ export function SiteHeader() {
           <div className="site-header__actions">
             {isAuthenticated ? (
               <Link to="/staff/inventory" className="site-header__btn site-header__btn--solid">
-                Staff
+                Panel staff
               </Link>
             ) : (
               <Link to="/login" className="site-header__btn">
-                Staff sign in
+                Acceso staff
               </Link>
             )}
           </div>
@@ -55,7 +55,7 @@ export function SiteHeader() {
             to="/"
             className={`site-subnav__tab${pathname === '/' ? ' site-subnav__tab--active' : ''}`}
           >
-            Menu
+            Menú
           </Link>
         </div>
       </div>
