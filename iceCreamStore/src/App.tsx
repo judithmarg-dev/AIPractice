@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { AuthGuard } from '@/components/AuthGuard'
 import StaffLayout from '@/layouts/StaffLayout'
+import CustomerLayout from '@/layouts/CustomerLayout'
 import FlavorCatalogPage from '@/pages/FlavorCatalogPage'
 import BookingPage from '@/pages/BookingPage'
 import BookingConfirmationPage from '@/pages/BookingConfirmationPage'
@@ -14,10 +15,12 @@ import AnalyticsPage from '@/pages/staff/AnalyticsPage'
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<FlavorCatalogPage />} />
-      <Route path="/booking" element={<BookingPage />} />
-      <Route path="/booking/confirmation" element={<BookingConfirmationPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route element={<CustomerLayout />}>
+        <Route path="/" element={<FlavorCatalogPage />} />
+        <Route path="/booking" element={<BookingPage />} />
+        <Route path="/booking/confirmation" element={<BookingConfirmationPage />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Route>
       <Route element={<AuthGuard />}>
         <Route path="/staff" element={<StaffLayout />}>
           <Route path="inventory" element={<InventoryPage />} />

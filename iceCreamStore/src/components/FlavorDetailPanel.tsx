@@ -1,15 +1,18 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Flavor, Size } from '../types/flavor'
+import { ScoopIcon } from './FlavorTile'
+import { SizePicker } from './SizePicker'
 
 interface FlavorDetailPanelProps {
   flavor: Flavor | null
   onClose: () => void
-  selectedSize: Size
 }
 
 const OVERLAY_QUERY = '(max-width: 1023px)'
 
-export function FlavorDetailPanel({ flavor, onClose, selectedSize }: FlavorDetailPanelProps) {
+export function FlavorDetailPanel({ flavor, onClose }: FlavorDetailPanelProps) {
+  const [selectedSize, setSelectedSize] = useState<Size>('medium')
   const panelRef = useRef<HTMLElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
@@ -59,48 +62,41 @@ export function FlavorDetailPanel({ flavor, onClose, selectedSize }: FlavorDetai
 
   if (!flavor) return null
 
-  const sizeLabel: Record<Size, string> = {
-    small: 'Small · 1 scoop',
-    medium: 'Medium · 2 scoops',
-    large: 'Large · 3 scoops',
-  }
-
   return (
     <aside className="flavor-detail-panel" aria-label="Flavor details" ref={panelRef}>
       <div className="flavor-detail-panel__overlay" onClick={onClose} aria-hidden="true" />
       <div className="flavor-detail-panel__content">
-        <header className="flavor-detail-panel__header">
-          <h2 className="flavor-detail-panel__title">{flavor.name}</h2>
-          <button
-            className="flavor-detail-panel__close-btn"
-            onClick={onClose}
-            aria-label="Close flavor details"
-            type="button"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </header>
+        <button
+          className="flavor-detail-panel__close-btn"
+          onClick={onClose}
+          aria-label="Close flavor details"
+          type="button"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+
+        <div
+          className="flavor-detail-panel__hero"
+          style={{ '--flavor-color': flavor.imagePlaceholder } as React.CSSProperties}
+          aria-hidden="true"
+        >
+          <ScoopIcon size={88} />
+        </div>
 
         <div className="flavor-detail-panel__body">
-          <div
-            className="flavor-detail-panel__image"
-            style={{ backgroundColor: flavor.imagePlaceholder }}
-            aria-hidden="true"
-          />
+          <span className="flavor-detail-panel__category">{flavor.category}</span>
+          <h2 className="flavor-detail-panel__title">{flavor.name}</h2>
+          <p className="flavor-detail-panel__description">{flavor.description}</p>
 
-          <div className="flavor-detail-panel__info">
-            <span className="flavor-detail-panel__category">{flavor.category}</span>
-            <p className="flavor-detail-panel__description">{flavor.description}</p>
-            <span className="flavor-detail-panel__size-badge">{sizeLabel[selectedSize]}</span>
-          </div>
+          <SizePicker selected={selectedSize} onChange={setSelectedSize} />
 
           <div className="flavor-detail-panel__actions">
-            <button className="flavor-detail-panel__action-btn" type="button">
-              Add to Cart
-            </button>
+            <Link to="/booking" className="flavor-detail-panel__action-btn">
+              Book a table
+            </Link>
           </div>
         </div>
       </div>

@@ -27,7 +27,7 @@ export default function BookingConfirmationPage() {
   ]
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16" style={{ background: 'var(--bg)' }}>
+    <main className="flex flex-col items-center justify-center px-4 py-16">
       <div
         className="w-full max-w-md rounded-2xl p-8 border"
         style={{ borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}

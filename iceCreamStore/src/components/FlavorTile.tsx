@@ -1,19 +1,19 @@
-import type { Flavor, Size } from '../types/flavor'
+import type { Flavor } from '../types/flavor'
 
-interface FlavorCardProps {
+interface FlavorTileProps {
   flavor: Flavor
-  selectedSize: Size
   index: number
   isSelected?: boolean
+  soldOut?: boolean
   onClick?: () => void
 }
 
-function ScoopIcon() {
+export function ScoopIcon({ size = 52 }: { size?: number }) {
   return (
     <svg
-      className="flavor-card__scoop"
-      width="52"
-      height="72"
+      className="flavor-tile__scoop"
+      width={size}
+      height={(size * 72) / 52}
       viewBox="0 0 52 72"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -29,26 +29,16 @@ function ScoopIcon() {
   )
 }
 
-export function FlavorCard({ flavor, selectedSize, index, isSelected = false, onClick }: FlavorCardProps) {
-  const sizeLabel: Record<Size, string> = {
-    small: 'Small · 1 scoop',
-    medium: 'Medium · 2 scoops',
-    large: 'Large · 3 scoops',
-  }
-
+export function FlavorTile({ flavor, index, isSelected = false, soldOut = false, onClick }: FlavorTileProps) {
   return (
     <article
-      className={`flavor-card ${isSelected ? 'flavor-card--selected' : ''}`}
-      style={
-        {
-          '--flavor-color': flavor.imagePlaceholder,
-          '--i': index,
-        } as React.CSSProperties
-      }
+      className={`flavor-tile${isSelected ? ' flavor-tile--selected' : ''}`}
+      style={{ '--flavor-color': flavor.imagePlaceholder, '--i': index } as React.CSSProperties}
       onClick={onClick}
       role="button"
       tabIndex={0}
       aria-expanded={isSelected}
+      aria-label={`${flavor.name}${soldOut ? ', sold out' : ''}`}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && onClick) {
           e.preventDefault()
@@ -56,17 +46,11 @@ export function FlavorCard({ flavor, selectedSize, index, isSelected = false, on
         }
       }}
     >
-      <div className="flavor-card__image" aria-hidden="true">
+      <div className="flavor-tile__image" aria-hidden="true">
         <ScoopIcon />
       </div>
-      <div className="flavor-card__body">
-        <span className="flavor-card__category">{flavor.category}</span>
-        <h3 className="flavor-card__name">{flavor.name}</h3>
-        <p className="flavor-card__description">{flavor.description}</p>
-        <span key={selectedSize} className="flavor-card__size-badge">
-          {sizeLabel[selectedSize]}
-        </span>
-      </div>
+      <h3 className="flavor-tile__name">{flavor.name}</h3>
+      {soldOut && <span className="flavor-tile__note">Sold out</span>}
     </article>
   )
 }

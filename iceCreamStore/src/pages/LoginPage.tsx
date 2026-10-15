@@ -23,7 +23,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
+    <main className="flex items-center justify-center px-4 min-h-[calc(100vh-var(--header-h)-44px)]">
       <div
         className="w-full max-w-sm rounded-2xl p-8 border"
         style={{ borderColor: 'var(--border)', boxShadow: 'var(--shadow)' }}

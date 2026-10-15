@@ -74,7 +74,7 @@ export default function BookingPage() {
   }
 
   return (
-    <main className="min-h-screen" style={{ background: 'var(--bg)' }}>
+    <main>
       <div className="max-w-xl mx-auto px-4 py-12">
         <Link to="/" className="text-sm mb-6 inline-block" style={{ color: 'var(--accent)' }}>
           ← Back to catalog
