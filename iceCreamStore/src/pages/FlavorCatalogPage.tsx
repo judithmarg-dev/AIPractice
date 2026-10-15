@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import '../catalog.css'
 import flavorsData from '../data/flavors.json'
 import type { Flavor, FlavorCategory, Size } from '../types/flavor'
@@ -28,16 +28,12 @@ export function FlavorCatalogPage() {
     setSelectedFlavorId(null)
   }
 
-  useEffect(() => {
-    const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        handleClosePanel()
-      }
+  const handleCategoryChange = (category: FlavorCategory | null) => {
+    setSelectedCategory(category)
+    if (category && selectedFlavor && selectedFlavor.category !== category) {
+      setSelectedFlavorId(null)
     }
-
-    window.addEventListener('keydown', handleEscapeKey)
-    return () => window.removeEventListener('keydown', handleEscapeKey)
-  }, [])
+  }
 
   return (
     <main className="catalog">
@@ -49,11 +45,15 @@ export function FlavorCatalogPage() {
       </header>
 
       <div className="catalog__controls">
-        <CategoryFilter selected={selectedCategory} onChange={setSelectedCategory} />
+        <CategoryFilter selected={selectedCategory} onChange={handleCategoryChange} />
         <SizePicker selected={selectedSize} onChange={setSelectedSize} />
       </div>
 
-      <div className="catalog__container">
+      {!selectedFlavor && (
+        <p className="catalog__hint">Select a flavor to see its details.</p>
+      )}
+
+      <div className={`catalog__container${selectedFlavor ? ' catalog__container--open' : ''}`}>
         <section className="catalog__grid" aria-label="Flavor list">
           {visible.map((flavor, index) => (
             <FlavorCard

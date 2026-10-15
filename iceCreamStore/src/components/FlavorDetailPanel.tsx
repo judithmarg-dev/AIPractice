@@ -7,6 +7,8 @@ interface FlavorDetailPanelProps {
   selectedSize: Size
 }
 
+const OVERLAY_QUERY = '(max-width: 1023px)'
+
 export function FlavorDetailPanel({ flavor, onClose, selectedSize }: FlavorDetailPanelProps) {
   const panelRef = useRef<HTMLElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
@@ -28,23 +30,34 @@ export function FlavorDetailPanel({ flavor, onClose, selectedSize }: FlavorDetai
     }
   }, [])
 
+  // Escape closes the panel whenever it is open, at every breakpoint.
   useEffect(() => {
     if (!flavor) return
-    previousFocusRef.current = document.activeElement as HTMLElement
-    const mql = window.matchMedia('(max-width: 767px)')
-    if (mql.matches) {
-      panelRef.current?.querySelector<HTMLElement>('button')?.focus()
-      document.addEventListener('keydown', trapFocus)
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+      }
     }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [flavor, onClose])
+
+  // Below desktop the panel is an overlay drawer: move focus in and trap it.
+  useEffect(() => {
+    if (!flavor) return
+    const mql = window.matchMedia(OVERLAY_QUERY)
+    if (!mql.matches) return
+    previousFocusRef.current = document.activeElement as HTMLElement
+    panelRef.current?.querySelector<HTMLElement>('button')?.focus()
+    document.addEventListener('keydown', trapFocus)
     return () => {
       document.removeEventListener('keydown', trapFocus)
       previousFocusRef.current?.focus()
     }
   }, [flavor, trapFocus])
 
-  if (!flavor) {
-    return <aside className="flavor-detail-panel" />
-  }
+  if (!flavor) return null
 
   const sizeLabel: Record<Size, string> = {
     small: 'Small · 1 scoop',
@@ -53,7 +66,7 @@ export function FlavorDetailPanel({ flavor, onClose, selectedSize }: FlavorDetai
   }
 
   return (
-    <aside className="flavor-detail-panel" aria-label="Flavor details" data-visible ref={panelRef}>
+    <aside className="flavor-detail-panel" aria-label="Flavor details" ref={panelRef}>
       <div className="flavor-detail-panel__overlay" onClick={onClose} aria-hidden="true" />
       <div className="flavor-detail-panel__content">
         <header className="flavor-detail-panel__header">

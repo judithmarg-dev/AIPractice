@@ -179,17 +179,31 @@
   outline-offset: 2px;
 }
 
+/* ── Empty-state hint (shown while no flavor is selected) ─ */
+.catalog__hint {
+  margin: -1rem 0 1.25rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  opacity: 0.8;
+}
+
 /* ── Catalog container with detail panel ──────────────── */
 .catalog__container {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0;
   position: relative;
 }
 
+/* Desktop: the panel column only exists while a flavor is selected */
 @media (min-width: 1024px) {
   .catalog__container {
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: minmax(0, 1fr) 0px;
+    transition: grid-template-columns 0.3s ease-out, gap 0.3s ease-out;
+  }
+
+  .catalog__container--open {
+    grid-template-columns: minmax(0, 1fr) 360px;
     gap: 2rem;
   }
 }
@@ -220,19 +234,17 @@
 
 /* ── Detail panel ─────────────────────────────────────── */
 .flavor-detail-panel {
-  display: none;
+  background: var(--bg);
 }
 
-.flavor-detail-panel[data-visible] {
-  display: block;
-}
-
-/* Desktop: Sidebar panel */
+/* Desktop: sidebar column next to the grid */
 @media (min-width: 1024px) {
   .flavor-detail-panel {
-    display: block;
-    position: static;
-    max-height: none;
+    position: sticky;
+    top: 1.5rem;
+    align-self: start;
+    min-width: 0;
+    max-height: calc(100vh - 3rem);
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow-y: auto;
@@ -244,52 +256,12 @@
   }
 }
 
-/* Tablet: Narrow sidebar */
-@media (768px <= width < 1024px) {
+/* Below desktop: overlay drawer with a backdrop */
+@media (max-width: 1023px) {
   .flavor-detail-panel {
-    display: block;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 300px;
-    height: 100%;
-    border-left: 1px solid var(--border);
-    background: var(--bg);
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    animation: panel-enter-right 0.3s ease-out;
-    z-index: 10;
-  }
-
-  .flavor-detail-panel__overlay {
-    display: none;
-  }
-
-  .catalog__grid {
-    margin-right: -320px;
-    padding-right: 320px;
-  }
-}
-
-/* Mobile: Full-width drawer from bottom */
-@media (max-width: 767px) {
-  .flavor-detail-panel {
-    display: none;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-height: 70vh;
-    background: var(--bg);
-    border-top: 1px solid var(--border);
-    border-radius: 16px 16px 0 0;
-    overflow-y: auto;
     z-index: 100;
-    animation: panel-enter-bottom 0.3s ease-out;
-  }
-
-  .flavor-detail-panel[data-visible] {
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
   }
@@ -304,11 +276,40 @@
   }
 }
 
+/* Tablet: drawer slides in from the right, over the grid */
+@media (768px <= width < 1024px) {
+  .flavor-detail-panel {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(360px, 85vw);
+    border-left: 1px solid var(--border);
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+    animation: panel-enter-right 0.3s ease-out;
+  }
+}
+
+/* Mobile: full-width drawer from the bottom */
+@media (max-width: 767px) {
+  .flavor-detail-panel {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 70vh;
+    border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    animation: panel-enter-bottom 0.3s ease-out;
+  }
+}
+
 .flavor-detail-panel__content {
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
+  z-index: 1;
+  background: var(--bg);
 }
 
 .flavor-detail-panel__header {
@@ -552,7 +553,9 @@
 @media (prefers-reduced-motion: reduce) {
   .flavor-card,
   .flavor-card__scoop,
-  .flavor-card__size-badge {
+  .flavor-card__size-badge,
+  .flavor-detail-panel,
+  .catalog__container {
     animation: none;
     transition: none;
   }
