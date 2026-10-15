@@ -209,6 +209,30 @@
 
 }
 
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-h);
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+
+.theme-toggle:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ── Sub-nav strip ────────────────────────────────────── */
 .site-subnav {
   position: sticky;
@@ -452,13 +476,20 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .flavor-tile__image {
+  :root:not([data-theme="light"]) .flavor-tile__image {
     background: linear-gradient(
       140deg,
       color-mix(in srgb, var(--flavor-color) 55%, #16171d) 0%,
       color-mix(in srgb, var(--flavor-color) 85%, #16171d) 100%
     );
-  }
+  }}
+
+:root[data-theme="dark"] .flavor-tile__image {
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--flavor-color) 55%, #16171d) 0%,
+    color-mix(in srgb, var(--flavor-color) 85%, #16171d) 100%
+  );
 }
 
 @media (max-width: 1023px) {
@@ -645,13 +676,20 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .flavor-detail-panel__hero {
+  :root:not([data-theme="light"]) .flavor-detail-panel__hero {
     background: linear-gradient(
       140deg,
       color-mix(in srgb, var(--flavor-color) 55%, #16171d) 0%,
       color-mix(in srgb, var(--flavor-color) 85%, #16171d) 100%
     );
-  }
+  }}
+
+:root[data-theme="dark"] .flavor-detail-panel__hero {
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--flavor-color) 55%, #16171d) 0%,
+    color-mix(in srgb, var(--flavor-color) 85%, #16171d) 100%
+  );
 }
 
 .flavor-detail-panel__body {

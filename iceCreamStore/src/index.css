@@ -39,8 +39,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark tokens: follow the OS unless the user forced light, or when forced dark */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --text: #9ca3af;
     --text-h: #f3f4f6;
     --bg: #16171d;
@@ -61,6 +62,36 @@
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
+}
+
+:root[data-theme="dark"] {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --surface-2: #1c1d24;
+    --surface-tint: #13343a;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #3fc1cc;
+    --accent-bg: #163c42;
+    --accent-border: rgba(63, 193, 204, 0.5);
+    --accent-text: #c4b5fd;
+    --primary: #a78bfa;
+    --primary-hover: #9478e8;
+    --warning: #8a6a1f;
+    --warning-text: #ffe3a3;
+    --danger: #f87171;
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {

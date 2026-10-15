@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/store/hooks'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const NAV = [
   { href: '/', label: 'Menú', match: (p: string) => p === '/' },
@@ -36,6 +37,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="site-header__actions">
+            <ThemeToggle />
             {isAuthenticated ? (
               <Link to="/staff/inventory" className="site-header__btn site-header__btn--solid">
                 Panel staff

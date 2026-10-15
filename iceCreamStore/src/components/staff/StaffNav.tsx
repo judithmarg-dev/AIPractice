@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '@/store/hooks'
 import { logout } from '@/store/slices/authSlice'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import '../../catalog.css'
 
 const NAV = [
   { href: '/staff/inventory', label: 'Inventory' },
@@ -41,6 +43,8 @@ export function StaffNav() {
           </Link>
         ))}
       </div>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
       <button
         onClick={signOut}
         className="text-sm px-3 py-1.5 rounded-lg"
@@ -48,6 +52,7 @@ export function StaffNav() {
       >
         Sign out
       </button>
+      </div>
     </nav>
   )
 }
