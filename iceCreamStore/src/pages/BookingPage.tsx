@@ -88,7 +88,7 @@ export default function BookingPage() {
         </p>
 
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <DateInput value={form.date} error={errors.date} onChange={(v) => setField('date', v)} />
             <TimeSelect value={form.time} error={errors.time} onChange={(v) => setField('time', v)} />
           </div>
@@ -99,7 +99,7 @@ export default function BookingPage() {
             onChange={(v) => setField('partySize', v)}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ContactFields
               firstName={form.firstName}
               lastName={form.lastName}

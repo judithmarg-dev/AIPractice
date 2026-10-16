@@ -49,8 +49,8 @@
 - [x] Ensure content remains readable and accessible
 - [x] Test on actual tablet devices or emulation
 
-### Task 2.3: Mobile Layout (< 768px) — ~~completed~~ OBSOLETE (2026-10-08)
-**Out of scope:** Mobile viewport removed from target by mission change. Completed work for the mobile drawer is superseded; tablet (768px) is now the smallest supported breakpoint. No regression fix required — the mobile CSS will not be served to target devices, but may be left in place or removed in a cleanup pass.
+### Task 2.3: Mobile Layout (< 768px) — base layout (reinstated 2026-10-16)
+Mobile is the base target again (mobile-first decision, 2026-10-16). The bottom drawer is the default panel layout; tablet (`min-width: 768px`) and desktop (`min-width: 1024px`) override it.
 
 ## Phase 3: Interactivity & State Management
 
@@ -83,7 +83,7 @@
 **Effort: 1 hour**
 - [x] Add CSS transitions for panel slide-in/slide-out
 - [x] Smooth grid layout adjustment when panel appears/disappears
-- [x] Panel entrance animation: slide from right (tablet and desktop)
+- [x] Panel entrance animation: slide up on mobile, slide from right on tablet and desktop
 - [x] Ensure animations don't cause performance issues
 - [x] Set reasonable transition duration (200-400ms)
 
@@ -98,8 +98,8 @@
 **Effort: 1.5 hours**
 - [ ] Test on desktop browsers (Chrome, Firefox, Safari)
 - [ ] Test on tablet screen sizes (iPad-like, 768px)
-- [ ] ~~Test on mobile screen sizes (iPhone-like, 375px, 425px)~~ — out of scope (2026-10-08)
-- [ ] ~~Test landscape orientation on mobile~~ — out of scope (2026-10-08)
+- [ ] Test on mobile screen sizes (iPhone-like, 375px, 425px) — base target (reinstated 2026-10-16)
+- [ ] Test landscape orientation on mobile — base target (reinstated 2026-10-16)
 - [ ] Test with browser devtools responsive design mode
 - [ ] Verify no layout shifts or scrolling issues
 - [ ] Check that all interactive elements remain accessible

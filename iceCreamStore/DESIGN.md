@@ -25,8 +25,8 @@ Every new screen or component must keep both.
    use `12–16px` radii.
 4. **Sectioned, not filtered.** The menu shows every category as a titled section; the sidebar
    is navigation (scroll-spy), never a filter.
-5. **Tablet-first.** Base layout targets ≥768px. Desktop (≥1024px) adds the sticky sidebar and
-   the side panel column. Phones must not break but are not optimised.
+5. **Mobile-first.** Base styles target phones (<768px). Tablet (`min-width: 768px`) and desktop
+   (`min-width: 1024px`) layer on top. Never write a `max-width` query for a new rule.
 6. **Spanish copy on customer surfaces.** The menu, the order panel and booking are in Spanish.
    Staff pages may stay in English.
 
@@ -81,6 +81,14 @@ System font stack, 18px base. Scale:
 
 Negative letter-spacing (`-0.02em` to `-0.03em`) on titles only.
 
+## Breakpoints
+
+| Name | Query | What changes |
+|---|---|---|
+| Mobile (base) | none | 2-column tiles, pill-row category bar, bottom-sheet panel, floating order bar |
+| Tablet | `min-width: 768px` | Right-side drawer panel, roomier header and gutters |
+| Desktop | `min-width: 1024px` | Sticky category sidebar, side panel column, order in the column, order bar hidden |
+
 ## Layout
 
 ```
@@ -118,12 +126,12 @@ SiteSubnav (sticky, 44px)           "Menú" tab
   title, envase line in `--accent-text`, description, **ScoopPicker** for artesanales
   (three pill buttons with a cone icon that grows per bola, price under each), then the
   primary "Agregar a la orden" button with the computed price on the right.
-- **FlavorTile** — circular swatch (120px / 96px tablet), name, price caption
+- **FlavorTile** — circular swatch (96px; 120px from desktop), name, price caption
   ("$2.60 / bola" for artesanales), optional "Agotado". Selected = `--accent` ring with a
   `--bg` gap around the circle.
-- **MenuSidebar** — "Categorías" heading, plain links, active link bold `--text-h`; on tablet
-  a sticky pill row where the active pill is `--accent` with white text.
-- **Order bar (tablet/phone)** — floating dark pill (`--text-h` fill, `--bg` text) at the
+- **MenuSidebar** — "Categorías" heading, plain links, active link bold `--text-h`; below desktop
+  it is a sticky pill row where the active pill is `--accent` with white text.
+- **Order bar (below desktop)** — floating dark pill (`--text-h` fill, `--bg` text) at the
   bottom: "Orden #N · 3 artículos" left, total in `--accent` + "Ver orden" right.
 - **Inputs** — 1px `--border`, 8px radius, `--accent` focus ring (2px, 2px offset).
 
@@ -148,6 +156,6 @@ Hover: 3px lift on swatches, darker fill on buttons. Everything disabled under
       cautionary secondary, red only for destructive.
 - [ ] Blocks are `--surface-tint` cards, not bordered boxes.
 - [ ] Headings follow the scale above; copy is Spanish on customer surfaces.
-- [ ] Works at 768px and 1280px, and does not overflow at 375px.
+- [ ] Designed at 375px first, then checked at 768px and 1280px; no horizontal overflow at any width.
 - [ ] Keyboard reachable with visible focus; overlays trap focus and close on Escape.
 - [ ] Reduced-motion respected.

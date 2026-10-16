@@ -8,7 +8,7 @@ Staff can browse and present the ice cream catalog to customers at the counter. 
 - Flavor list page: name, description, image placeholder per flavor
 - Size picker: Small / Medium / Large (UI selection, no pricing logic yet)
 - Category filter: fruit, chocolate, classic (at minimum); filter is additive / single-select
-- Tablet-first layout: base design targets ≥ 768 px; scales up to desktop (< 768 px is out of scope)
+- Mobile-first layout: base styles target phones; tablet (≥ 768 px) and desktop (≥ 1024 px) add columns and the side panel
 
 ### Out of scope
 - Cart, add-to-order, or checkout flow (deferred to a later phase)
@@ -41,4 +41,4 @@ Sizes are a static constant (not in the JSON): `["small", "medium", "large"]`.
 
 ## Audience alignment (mission.md)
 
-This phase serves **staff**. They use the catalog at the counter to help customers choose and to verify the current menu. Every UI decision should optimise for a quick, low-friction tablet experience. Owners gain deeper visibility starting in P3+ with inventory and analytics.
+This phase serves **staff**. They use the catalog at the counter to help customers choose and to verify the current menu. Every UI decision should optimise for a quick, low-friction touch experience on a phone or tablet. Owners gain deeper visibility starting in P3+ with inventory and analytics.

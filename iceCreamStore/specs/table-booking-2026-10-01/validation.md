@@ -12,6 +12,7 @@ P2 is ready to merge when **all** of the following pass.
 
 | Scenario | Expected result |
 |---|---|
+| Load `/booking` on a phone (375 px) | Fields stack in a single column; all fields visible; no horizontal scroll |
 | Load `/booking` on tablet (768 px – 1023 px) | Form renders correctly; all fields visible; no horizontal scroll |
 | Load `/booking` on desktop (≥ 1024 px) | Form renders in two-column layout; all fields visible |
 | Submit form with all fields empty | Per-field error messages appear; form does not advance |

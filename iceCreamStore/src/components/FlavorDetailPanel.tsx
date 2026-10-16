@@ -15,7 +15,7 @@ interface FlavorDetailPanelProps {
   onClose: () => void
 }
 
-const OVERLAY_QUERY = '(max-width: 1023px)'
+const DESKTOP_QUERY = '(min-width: 1024px)'
 const money = (n: number) => `$${n.toFixed(2)}`
 
 export function FlavorDetailPanel({ flavor, showOrder, onClose }: FlavorDetailPanelProps) {
@@ -55,8 +55,8 @@ export function FlavorDetailPanel({ flavor, showOrder, onClose }: FlavorDetailPa
 
   // Below desktop the panel is an overlay drawer: move focus in and trap it.
   useEffect(() => {
-    const mql = window.matchMedia(OVERLAY_QUERY)
-    if (!mql.matches) return
+    // On desktop the panel is a sticky column, not an overlay: no focus trap.
+    if (window.matchMedia(DESKTOP_QUERY).matches) return
     previousFocusRef.current = document.activeElement as HTMLElement
     panelRef.current?.querySelector<HTMLElement>('button')?.focus()
     document.addEventListener('keydown', trapFocus)

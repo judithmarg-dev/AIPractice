@@ -33,23 +33,27 @@
 └─────────────────────────────────┴──────────────┘
 ```
 
-### Tablet Layout (primary design target, 768px – 1023px)
+### Mobile Layout (base, < 768px)
 ```
-┌─────────────────────────────────┬──────────────┐
-│                                 │              │
-│     Catalog Grid (3-4 cols)     │   Detail     │
-│                                 │   Panel      │
-│                                 │   (~300px)   │
-│                                 │              │
-└─────────────────────────────────┴──────────────┘
+┌────────────────────┐
+│ Catalog (2 cols)   │
+│                    │
+├────────────────────┤  ← backdrop dims the catalog
+│ Detail panel       │
+│ (bottom drawer,    │
+│  max 80vh)         │
+└────────────────────┘
 ```
+
+### Tablet Layout (768px – 1023px)
+The panel is a right-side drawer over the catalog (`min(380px, 85vw)`) with a backdrop; the catalog does not reflow.
 
 ## Styling Approach
 
-### Breakpoints
-- Tablet (primary target): 768px – 1023px
-- Desktop: ≥ 1024px
-- Mobile (< 768px): **out of scope** — not a target viewport for this staff-admin tool
+### Breakpoints (mobile-first)
+- Mobile (base, no media query): < 768px
+- Tablet: `@media (min-width: 768px)`
+- Desktop: `@media (min-width: 1024px)`
 
 ### Detail Panel Styling
 - Background: Light (white) / Dark mode: dark gray
@@ -72,14 +76,15 @@
 - Smooth grid-auto-flow when panel visible/hidden
 - Scrolling: Catalog scrolls, panel position fixed or sticky
 
-### Tablet (768px - 1023px)
-- Similar to desktop but narrower
-- Panel width: ~300-350px
-- Catalog columns: 3-4 instead of 6
-- May need absolute positioning if space is tight
+### Mobile (base, < 768px)
+- Panel is a fixed bottom drawer, full width, max-height 80vh, rounded top corners
+- Backdrop dims the catalog; tapping it, the close button or Escape closes the panel
+- Focus moves into the panel and is trapped while it is open
+- Catalog tiles: 2 columns; category sidebar is a sticky horizontal pill row
 
-### Mobile (< 768px) — out of scope
-- Not a target viewport; no mobile-specific layout required
+### Tablet (≥ 768px)
+- Panel becomes a right-side drawer, width `min(380px, 85vw)`, over the catalog with a backdrop
+- Catalog tiles use `auto-fill` columns
 
 ## CSS Classes Structure
 ```

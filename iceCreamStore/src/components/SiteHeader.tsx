@@ -40,11 +40,13 @@ export function SiteHeader() {
             <ThemeToggle />
             {isAuthenticated ? (
               <Link to="/staff/inventory" className="site-header__btn site-header__btn--solid">
-                Panel staff
+                <span className="site-header__btn-short">Staff</span>
+                <span className="site-header__btn-long">Panel staff</span>
               </Link>
             ) : (
               <Link to="/login" className="site-header__btn">
-                Acceso staff
+                <span className="site-header__btn-short">Staff</span>
+                <span className="site-header__btn-long">Acceso staff</span>
               </Link>
             )}
           </div>

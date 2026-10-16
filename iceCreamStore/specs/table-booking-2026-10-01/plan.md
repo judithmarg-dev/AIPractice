@@ -19,7 +19,7 @@
 8. `BookingFormPage` — composes all field components into a single `<form>`
 9. Wire client-side validation: validate on submit, display per-field error messages, block submission while invalid
 10. On valid submit: call `bookingService.submitBooking`, then transition to confirmation screen
-11. Tablet-first layout: two-column field grid at ≥ 768 px; full-width adapts up on desktop; sub-768 px is out of scope
+11. Mobile-first layout: single-column field grid by default; two columns at ≥ 768 px (`md:`); the form stays in a centred `max-w-xl` column on desktop
 
 ## Group 4 — Confirmation screen
 

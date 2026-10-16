@@ -12,6 +12,7 @@ P1 is ready to merge when **all** of the following pass.
 
 | Scenario | Expected result |
 |---|---|
+| Load flavor list page on a phone (375 px) | Tiles render in 2 columns; category pills scroll horizontally; no horizontal page scroll |
 | Load flavor list page on tablet (768 px – 1023 px) | All flavors render in a multi-column grid; name, description, and image placeholder visible; no horizontal scroll |
 | Load flavor list page on desktop (≥ 1024 px) | All flavors render in a grid; name, description, and image placeholder visible |
 | Click a category filter (e.g. "Fruit") | Only flavors in that category are shown |

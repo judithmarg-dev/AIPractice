@@ -20,20 +20,19 @@ The detail panel displays:
 - Close button (X icon, top right)
 
 ### Responsive Behavior
-**Tablet (768px – 1023px)** ← primary design target
-- Panel slides in from the right side
-- Panel width is approximately 40-50% of viewport width
-- Catalog grid adjusts to accommodate the panel (layout shift)
+**Mobile (<768px)** ← base design target
+- Panel slides up from the bottom as a full-width drawer (max 80% of viewport height)
+- A backdrop dims the catalog; tapping it closes the panel
 - Close button clearly visible
-- Panel remains visible while scrolling catalog
+- Focus moves into the panel and is trapped until it closes
+
+**Tablet (≥768px)**
+- Panel slides in from the right as a drawer over the catalog
+- Panel width is `min(380px, 85vw)`; a backdrop dims the catalog
 
 **Desktop (≥1024px)**
-- Panel width is approximately 30-40% of viewport width
-- Catalog grid adjusts to accommodate the panel
+- Panel is a sticky side column of about 360px; the catalog grid adjusts to accommodate it
 - Panel remains visible while scrolling catalog
-
-**Mobile (<768px)** — out of scope
-- Not a target viewport for this tool; no mobile behavior required
 
 ### State Management
 - Track selected flavor ID in component state
@@ -49,6 +48,6 @@ The detail panel displays:
 - Flavor card showing selected state (outline, background, or other visual indicator)
 
 ### Animation and Transitions
-- Panel entrance: Smooth slide-in from right (tablet and desktop)
+- Panel entrance: Smooth slide-up from the bottom on mobile; slide-in from the right on tablet and desktop
 - Catalog content: Smooth adjustment when panel opens/closes
 - No janky layout shifts

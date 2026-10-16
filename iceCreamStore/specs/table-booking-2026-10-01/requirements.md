@@ -8,7 +8,7 @@ Staff can enter a table reservation on behalf of a customer using a front-end fo
 - Staff-side booking entry form: date, time (30-minute increments), party size, customer name, email, phone number
 - Client-side validation on all fields
 - Confirmation / success screen shown to staff after a valid submission
-- Tablet-first layout: base design targets ≥ 768 px; scales up to desktop (< 768 px is out of scope)
+- Mobile-first layout: single-column form on phones; two-column field grid from ≥ 768 px; scales up to desktop
 
 ### Out of scope
 - Real persistence or backend of any kind (deferred to P3)
