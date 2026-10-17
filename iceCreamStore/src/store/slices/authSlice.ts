@@ -7,9 +7,28 @@ interface AuthState {
 
 const STAFF_EMAIL = 'staff@icecreamstore.com'
 const STAFF_PASSWORD = 'staff123'
+// The session survives a reload of the tab, not the closing of the browser.
+const SESSION_KEY = 'ics-auth'
+
+function readSession(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function writeSession(value: boolean) {
+  try {
+    if (value) sessionStorage.setItem(SESSION_KEY, '1')
+    else sessionStorage.removeItem(SESSION_KEY)
+  } catch {
+    // Storage unavailable: the session lives only in memory.
+  }
+}
 
 const initialState: AuthState = {
-  isAuthenticated: false,
+  isAuthenticated: readSession(),
   error: null,
 }
 
@@ -19,11 +38,11 @@ const authSlice = createSlice({
   reducers: {
     login(state, action: PayloadAction<{ email: string; password: string }>) {
       const { email, password } = action.payload
-      if (email === STAFF_EMAIL && password === STAFF_PASSWORD) {
+      if (email.trim().toLowerCase() === STAFF_EMAIL && password === STAFF_PASSWORD) {
         state.isAuthenticated = true
         state.error = null
       } else {
-        state.error = 'Invalid email or password.'
+        state.error = 'Correo o contraseña incorrectos.'
       }
     },
     logout(state) {

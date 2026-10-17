@@ -1,82 +1,65 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/store/hooks'
-import { selectActiveItems } from '@/store/slices/inventorySlice'
-import { computeTotals, selectCurrentOrder } from '@/store/slices/orderSlice'
-import type { IceCream } from '@/types/iceCream'
-import { CATEGORIES, isFlavorCategory, type Flavor } from '@/types/flavor'
+import { selectActiveProducts } from '@/store/slices/inventorySlice'
+import { selectActiveCategories } from '@/store/slices/categoriesSlice'
+import { selectDraft, selectDraftNumber, selectEditingId } from '@/store/slices/orderSlice'
+import { selectDraftTotals } from '@/store/selectors'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { formatMoney } from '@/lib/money'
+import { plural } from '@/lib/texts'
+import type { OrderLine } from '@/types/models'
 import { MenuSidebar, type MenuSection } from '@/components/MenuSidebar'
 import { FlavorTile } from '@/components/FlavorTile'
 import { FlavorDetailPanel } from '@/components/FlavorDetailPanel'
+import { BuildModal } from '@/components/BuildModal'
 
-const SECTIONS: { id: string; label: string }[] = [...CATEGORIES, { id: 'other', label: 'Otros' }]
-
-interface CatalogItem extends Flavor {
-  sectionId: string
-  soldOut: boolean
-}
-
-function toCatalogItem(item: IceCream): CatalogItem {
-  const category = isFlavorCategory(item.category) ? item.category : 'bebida'
-  return {
-    id: item.id,
-    name: item.name,
-    description: item.description,
-    category,
-    sectionId: isFlavorCategory(item.category) ? item.category : 'other',
-    imagePlaceholder: item.image_placeholder,
-    price: item.price,
-    image: item.image,
-    container: item.container,
-    soldOut: item.inventory_count <= 0,
-  }
-}
-
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(() => window.matchMedia(query).matches)
-  useEffect(() => {
-    const mql = window.matchMedia(query)
-    const onChange = () => setMatches(mql.matches)
-    mql.addEventListener('change', onChange)
-    return () => mql.removeEventListener('change', onChange)
-  }, [query])
-  return matches
+interface BuildTarget {
+  baseId: string
+  line?: OrderLine
 }
 
 export function FlavorCatalogPage() {
-  const inventory = useAppSelector(selectActiveItems)
-  const order = useAppSelector(selectCurrentOrder)
+  const location = useLocation()
+  const products = useAppSelector(selectActiveProducts)
+  const categories = useAppSelector(selectActiveCategories)
+  const draft = useAppSelector(selectDraft)
+  const number = useAppSelector(selectDraftNumber)
+  const editing = useAppSelector(selectEditingId) !== null
+  const totals = useAppSelector(selectDraftTotals)
   const isDesktop = useMediaQuery('(min-width: 1024px)')
-  const [selectedFlavorId, setSelectedFlavorId] = useState<string | null>(null)
-  const [orderOpen, setOrderOpen] = useState(false)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [orderOpen, setOrderOpen] = useState(() => Boolean((location.state as { openOrder?: boolean } | null)?.openOrder))
+  const [build, setBuild] = useState<BuildTarget | null>(null)
 
-  const sections = useMemo(() => {
-    const items = inventory.map(toCatalogItem)
-    return SECTIONS.map((section) => ({
-      ...section,
-      items: items.filter((i) => i.sectionId === section.id),
-    })).filter((s) => s.items.length > 0)
-  }, [inventory])
+  // RF-1.5: categories in their order, only those with at least one active product.
+  const sections = useMemo(
+    () =>
+      categories
+        .map((c) => ({ category: c, id: `cat-${c.id}`, items: products.filter((p) => p.categoryId === c.id) }))
+        .filter((s) => s.items.length > 0),
+    [categories, products]
+  )
+  const sidebarSections: MenuSection[] = useMemo(
+    () => sections.map(({ id, category }) => ({ id, label: category.name })),
+    [sections]
+  )
 
-  const sidebarSections: MenuSection[] = sections.map(({ id, label }) => ({ id, label }))
-
-  const selectedFlavor =
-    sections.flatMap((s) => s.items).find((f) => f.id === selectedFlavorId) ?? null
-
-  const hasLines = order.lines.length > 0
-  const totals = computeTotals(order)
+  const selected = products.find((p) => p.id === selectedId) ?? null
+  const hasLines = draft.lines.length > 0 || editing
 
   // Desktop keeps the order in the side column; smaller screens open it on demand.
-  const showPanel = selectedFlavor !== null || (hasLines && (isDesktop || orderOpen))
+  const showPanel = selected !== null || (hasLines && (isDesktop || orderOpen))
   const showOrderBar = !isDesktop && hasLines && !showPanel
 
-  const handleFlavorSelect = (flavorId: string) => {
-    setSelectedFlavorId(selectedFlavorId === flavorId ? null : flavorId)
-  }
-
-  const handleClosePanel = () => {
-    setSelectedFlavorId(null)
+  const handleClosePanel = useCallback(() => {
+    setSelectedId(null)
     setOrderOpen(false)
-  }
+  }, [])
+
+  const handleEditLine = useCallback((line: OrderLine) => {
+    if (line.build) setBuild({ baseId: line.build.scoops[0].id, line })
+  }, [])
 
   return (
     <main className={`menu${showPanel ? ' menu--open' : ''}`}>
@@ -84,29 +67,39 @@ export function FlavorCatalogPage() {
 
       <div className="menu__content">
         <h1 className="menu__title">Menú</h1>
-        {!showPanel && (
-          <p className="menu__hint">Selecciona un producto para ver sus detalles y agregarlo a la orden.</p>
+        {editing && (
+          <p className="menu__editing" role="status">
+            Editando Orden #{number}: agrega o cambia productos y guarda los cambios en el panel de la orden.
+          </p>
+        )}
+        {!showPanel && !editing && (
+          <p className="menu__hint">Toca un producto para agregarlo al pedido. Los artesanales se arman bola por bola.</p>
+        )}
+        {sections.length === 0 && (
+          <p className="menu__hint">Todavía no hay productos activos. Crea categorías y productos desde el panel de staff.</p>
         )}
 
-        {sections.map((section) => (
-          <section
-            key={section.id}
-            id={section.id}
-            className="menu__section"
-            aria-labelledby={`${section.id}-heading`}
-          >
-            <h2 id={`${section.id}-heading`} className="menu__section-title">
-              {section.label}
+        {sections.map(({ category, id, items }) => (
+          <section key={id} id={id} className="menu__section" aria-labelledby={`${id}-heading`}>
+            <h2 id={`${id}-heading`} className="menu__section-title">
+              {category.name}
             </h2>
             <div className="menu__tiles">
-              {section.items.map((flavor, index) => (
+              {items.map((product, index) => (
                 <FlavorTile
-                  key={flavor.id}
-                  flavor={flavor}
+                  key={product.id}
+                  product={product}
+                  buildable={category.buildable}
                   index={index}
-                  isSelected={selectedFlavorId === flavor.id}
-                  soldOut={flavor.soldOut}
-                  onClick={() => handleFlavorSelect(flavor.id)}
+                  isSelected={selectedId === product.id}
+                  onClick={() => {
+                    if (category.buildable) {
+                      setSelectedId(null)
+                      setBuild({ baseId: product.id })
+                    } else {
+                      setSelectedId(selectedId === product.id ? null : product.id)
+                    }
+                  }}
                 />
               ))}
             </div>
@@ -116,20 +109,23 @@ export function FlavorCatalogPage() {
 
       {showPanel && (
         <FlavorDetailPanel
-          flavor={selectedFlavor}
-          showOrder={hasLines || selectedFlavor === null}
+          product={selected}
+          showOrder={hasLines || selected === null}
           onClose={handleClosePanel}
+          onEditLine={handleEditLine}
         />
       )}
 
       {showOrderBar && (
         <button type="button" className="order-bar" onClick={() => setOrderOpen(true)}>
           <span className="order-bar__label">
-            Orden #{order.number} · {totals.itemCount} {totals.itemCount === 1 ? 'artículo' : 'artículos'}
+            {editing ? 'Editando ' : ''}Orden #{number} · {plural(totals.itemCount, 'artículo', 'artículos')}
           </span>
-          <span className="order-bar__total">${totals.total.toFixed(2)} · Ver orden</span>
+          <span className="order-bar__total">{formatMoney(totals.totalCents)} · Ver orden</span>
         </button>
       )}
+
+      {build && <BuildModal key={build.line?.lineId ?? build.baseId} {...build} onClose={() => setBuild(null)} />}
     </main>
   )
 }

@@ -12,15 +12,23 @@ Vite + React + TypeScript + Tailwind CSS (current, front-end only). Planned migr
 
 ## Users
 
-**Primary — Customers:** Local customers checking the ice cream catalog before or after visiting the physical store. They want a quick, low-friction way to see what flavors are available, pick a size, and reserve a table.
+**Primary — the store owner (propietario).** Runs the counter on a tablet or phone with one free
+hand and little time: takes orders from a Starbucks-style menu, builds artisanal ice creams scoop
+by scoop, keeps a queue of orders waiting to be charged, restocks what runs out, and reviews income,
+profit and demand by day, week or month in a visual dashboard that exports to PDF and CSV.
 
-**Primary — Store owner / manager:** Wants to monitor store performance, popular flavors, booking trends, and low-stock alerts (P5 analytics dashboard). Not yet served by front-end-only phases.
+**Secondary — counter staff.** Same single mock account and the same tools as the owner.
 
-**Secondary — Staff:** Will manage the ice cream inventory and booking queue (introduced in P3). Auth-gated, distinct from the customer-facing experience.
+Customers do **not** use the app; the menu exists to take orders at the counter, not for
+self-service. Table booking stays as a public page (decision D5 of P6).
 
 ## Product Purpose
 
-IceCreamStore is the digital presence of a physical ice cream shop. It lets customers browse the flavor catalog and book a table, and it gives the owner and staff a dashboard to manage inventory, bookings, and performance metrics. Phases ship independently: customer-facing catalog first, then booking, then staff tools, then analytics.
+IceCreamStore is the owner's working tool for a physical ice cream shop: order taking with a
+build modal, a counter queue with editing, dynamic categories and priced options (envases, extras,
+toppings), inventory that is discounted as orders are queued or charged, and a sales dashboard
+with comparisons, peak hours, star flavor and restocking signals. Everything runs in the browser
+and persists in `localStorage`; there is no backend yet. The whole app is in Spanish.
 
 ## Positioning
 
@@ -35,7 +43,9 @@ A small-business ice cream shop site built with production-grade engineering pra
 
 ## Capabilities and Constraints
 
-- **P1 (current):** Static flavor catalog — name, description, image placeholder, size picker (small / medium / large), category filter (fruit / chocolate / classic). No cart or checkout.
+- **P6 (current, 2026-10-17):** owner panel — see `specs/panel-propietario-2026-10-17/`. Prices in
+  integer cents, income without IVA, optional costs for profit, demo data, PDF and CSV exports.
+- **History — P1:** Static flavor catalog — name, description, image placeholder, size picker (small / medium / large), category filter (fruit / chocolate / classic). No cart or checkout.
 - **P2 (next):** Table booking form (date, time, party size, name, contact) with client-side validation. No persistence yet.
 - **P3+:** Back-end, inventory CRUD, staff auth, booking persistence, order queue, analytics.
 - Data source for catalog: `src/data/flavors.json` — typed JSON imported at build time.
@@ -58,10 +68,10 @@ Store name: **IceCreamStore** (working name; visual brand — colors, logo, tagl
 ## Product Principles
 
 1. **Ship incrementally, never rewrite.** Each phase delivers a working product; back-end layers are additive.
-2. **Customer experience first, owner visibility second.** P0–P2 optimise for low-friction browsing and booking. Analytics wait until the product foundation is solid.
+2. **The owner's counter comes first.** Every frequent action costs few taps on a phone or tablet; visibility (dashboard, signals) serves stocking and staffing decisions.
 3. **Type safety throughout.** TypeScript end-to-end, from data shapes to API contracts, is non-negotiable.
 4. **Content before chrome.** Real flavors, real copy, real bookings — no fabricated testimonials, prices, or claims.
-5. **Staff and customer surfaces are distinct.** Auth-gated management tools never bleed into the public-facing experience.
+5. **Order taking stays open, management is gated.** The menu (`/`) and booking need no login; queue, dashboard, inventory, categories, options and settings sit behind `AuthGuard`.
 
 ## Accessibility & Inclusion
 

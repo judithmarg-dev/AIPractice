@@ -8,10 +8,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src",
-    "tsc": "tsc --noEmit -p tsconfig.app.json"
+    "tsc": "tsc --noEmit -p tsconfig.app.json",
+    "verify": "vite build --ssr scripts/verify.ts --outDir node_modules/.tmp/verify --emptyOutDir --logLevel warn && node node_modules/.tmp/verify/verify.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.0",
+    "html-to-image": "^1.11.13",
+    "jspdf": "^4.2.1",
     "papaparse": "^5.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

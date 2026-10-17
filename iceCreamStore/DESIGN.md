@@ -1,6 +1,7 @@
 # DESIGN.md — IceCreamStore visual system
 
-Read this before touching any customer-facing screen (menu, order panel, booking, login).
+Read this before touching any screen: the menu and order panel, the build modal, the owner
+panel (queue, dashboard, inventory, categories, options, settings), booking and login.
 Two references define the look:
 
 1. **Layout** follows the Starbucks menu (https://www.starbucks.com/menu): sticky header,
@@ -27,8 +28,11 @@ Every new screen or component must keep both.
    is navigation (scroll-spy), never a filter.
 5. **Mobile-first.** Base styles target phones (<768px). Tablet (`min-width: 768px`) and desktop
    (`min-width: 1024px`) layer on top. Never write a `max-width` query for a new rule.
-6. **Spanish copy on customer surfaces.** The menu, the order panel and booking are in Spanish.
-   Staff pages may stay in English.
+6. **Spanish everywhere.** Every visible string, `aria-label`, error, empty state, PDF and CSV
+   header is Spanish. Repeated copy lives in `src/lib/texts.ts`; dates use `toLocaleDateString('es')`,
+   times are 24-hour, money is `$1,845.50` from `formatMoney(cents)`.
+7. **Never colour alone.** Urgency, stock level and selection always carry an icon and a word
+   ("Agotado", "Urgente", a check mark) as well as a colour.
 
 ## Palette (`src/index.css`)
 
@@ -54,6 +58,11 @@ charcoal base.
 | `--header-h` | `64px` | | sticky offsets |
 
 Rules:
+- **Readable text on tints.** Coloured text on a tinted fill is mixed toward `--text-h` so it
+  passes AA in both themes, e.g. `color-mix(in srgb, var(--danger) 70%, var(--text-h))` on
+  `color-mix(in srgb, var(--danger) 14%, var(--bg))`, and `color-mix(in srgb, var(--accent) 55%,
+  var(--text-h))` on `--accent-bg`. Mix inline in each rule, never into a `:root` variable, so the
+  light island used for the PDF (`[data-theme="light"]` on an element) resolves correctly.
 - Never hard-code colours in components; use the tokens (or the Tailwind aliases in
   `tailwind.config.ts`). Add a token here before using a new colour anywhere.
 - Text on `--surface-tint` uses `--text-h` / `--text`; text on `--accent` or `--primary` is
@@ -141,21 +150,131 @@ Entrance only: tiles fade/slide in (staggered 45ms), panel slides in (300ms ease
 Hover: 3px lift on swatches, darker fill on buttons. Everything disabled under
 `prefers-reduced-motion`.
 
+## Owner panel components (P6)
+
+### Staff layout and navigation
+- Same sticky header as the menu (logo, "Panel del propietario" tag from 768px, "Tomar pedidos"
+  pill, theme toggle, sign-out icon button) plus the sub-nav strip with icon + label tabs:
+  Dashboard, Cola, Inventario, Categorías, Opciones, Reservas, Ajustes. The strip scrolls
+  horizontally on phones; the active tab has the `--text-h` underline.
+- Page background is `--surface-2`; content blocks are `--bg` cards (16–20px radius, no border).
+  Inside a card, sub-blocks use `--surface-tint` (lines, totals) or `--surface-2` (footers, empty
+  states, meters' track).
+- **Queue badge** — amber pill (`--warning` / `--warning-text`, `0.7rem/800`) next to "Cola" in both
+  bars (on phones the public bar shows it in the sub-nav "Cola del mostrador" tab).
+- Page head: title `1.6rem/700` (`1.85rem` from 768px), one-line subtitle in `--text`, primary
+  action pill on the right; wraps under the title on phones.
+
+### Dialog and build modal (`Dialog`, `BuildModal`)
+- `role="dialog"` (`alertdialog` for confirmations), `aria-modal`, labelled by its title; focus
+  moves in, Tab is trapped, Escape / close button / backdrop close it, focus returns to the opener.
+- Phones: bottom sheet, `20px 20px 0 0` radius, up to 92% of the viewport height. From 768px:
+  centred, 16px radius, max width 440 / 560 / 720px (`sm` / `md` / `lg`). Backdrop `rgba(0,0,0,.45)`.
+- Structure: header (fixed) · body (scrolls) · footer (fixed, hairline above). Close button is a
+  `--surface-2` circle top-right.
+- Build modal header is a `--surface-tint` band: 72px circular swatch of the base flavor, eyebrow
+  "ARMA TU HELADO", name `1.3rem/700`, description, "Base · $2.60 por bola".
+- Sections ("Bolas adicionales", "Envase", "Extras", "Toppings") are separated by hairlines; each
+  has a `1rem/700` title and a `0.78rem` meta on the right ("Opcional · 2 de 3 bolas"). The scoop
+  order summary sits in a `--surface-2` pill in `--accent-text` ("1. Pistacho (base) · 2. …").
+- Footer: small stepper (helados 1–20) + primary pill that grows, label left and live price right
+  ("Agregar al pedido … $6.40" / "Guardar cambios … $6.40"); a red reason line appears above when
+  stock blocks it.
+- Confirmations: `sm` dialog, title is the question ("¿Cobrar $14.08?"), actions right-aligned
+  (full-width on phones) with "Cancelar" as a ghost button last.
+
+### Option cards (`OptionCard`)
+- A real `radio` (envase) or `checkbox` (bolas, extras, toppings) visually hidden inside a label.
+- `--surface-tint` card, 14px radius, min height 64px; 40px circle media (icon in `--accent` on
+  `--bg`, or the product swatch/image); title `0.86rem/600`; price `0.8rem/700` mixed accent
+  ("+$0.50", or "Incluido" at 0).
+- Checked: `--accent-bg` fill, 2px inset `--accent` ring and a filled check circle top-right
+  (the check is the non-colour cue). Unavailable: 55% opacity, `aria-disabled`, reason in red text
+  ("Agotado", "Máximo alcanzado", "Sin stock disponible"). Focus: 2px `--accent` outline.
+- Grid: 2 columns on phones, 3 from 560px. A scoop card that is chosen shows a small stepper under it.
+
+### Queue cards (`QueueCard`)
+- `--bg` card, 16px radius; grid of 1 / 2 / 3 columns (base / 768 / 1024).
+- Head: "Orden #N" `1.15rem/700`, creation time under it, service chip (icon + text) right.
+- Age pill: clock icon + "hace 12 min" + status word. A tiempo: `--surface-tint`; Demorado
+  (amber minutes from Ajustes): `--warning`; Urgente (red minutes): danger tint. The card also gets
+  a 4px inset top stripe in amber or red.
+- Customer, note and address as icon rows; each line is a `--surface-tint` block with "2 × name",
+  amount, and a `--accent-text` detail list (Bolas, Envase, Extras, Toppings).
+- Totals block like the order panel (total `1.35rem/800 --accent`), then primary "Cobrar $X"
+  full width and a two-column row: secondary "Editar", warning "Cancelar pedido".
+- Above the grid: summary strip of two `--bg` pills ("Pedidos por cobrar: N", "Total por cobrar")
+  and a segmented filter (Todos / Presencial / Delivery with counts).
+
+### KPI cards (`KpiCards`)
+- Four `--bg` cards, 20px radius: 1 column on phones, 2 from 560px, 4 from 1024px.
+- Uppercase `0.72rem/700` label, 40px `--surface-tint` icon circle top-right, value `1.85rem/800`
+  with the variation pill beside it, a 36px sparkline (`--accent`, no axes), and a `--surface-2`
+  footer pill "label … value". Profit and orders add a 6px progress bar (`--accent` on `--surface-2`).
+- **Variation pill**: up = `--accent-bg` + trend-up icon, down = danger tint + trend-down icon,
+  "Nuevo" / "Sin datos previos" = neutral `--surface-2`. Text is "+12 %" (space before %).
+
+### Charts (`components/dashboard/*`)
+- Every chart sits in a `ChartCard`: title `1.05rem/700`, subtitle `0.8rem`, controls right
+  (mini segmented, pill select), visual wrapped in `role="img"` with an `aria-label` summary and a
+  visually hidden list of key values; empty data shows a `--surface-2` message block instead.
+- Grid: 1 column, 2 from 768px, 3 from 1024px; wide cards span 2.
+- **Series palette** (only tokens):
+  - current period: `--accent` line 2.5px with a gradient area (30% → 2% opacity);
+  - previous period: `--text`, 2px, dashed `5 5`, no area;
+  - categories, in category order: `--accent`, `--primary`, `--warning`, `--accent-text`,
+    `--text-h`, `--danger`;
+  - status: ok `--accent`, soon / low `--warning`, now / sold out `--danger`;
+  - Presencial `--accent`, Delivery `--primary`; peak marker `--warning` dot with `--warning-text` ring.
+- Axes: no axis lines or tick marks, `11px` `--text` ticks, horizontal dashed grid in `--border`.
+- Tooltips: `--bg`, 1px `--border`, 12px radius, `12px` text; Recharts `accessibilityLayer` lets
+  keyboard users move through points with the arrow keys.
+- Ranked and meter bars are HTML: 10px pill track in `--surface-2`, bar in the series colour;
+  supply bars add dashed `--text` rules at 1 and 3 days with labels above.
+- Callouts (hora pico, ganador) are 12px-radius bands: amber tint
+  `color-mix(--warning 45%, --bg)` or `--accent-bg`, text `--text-h`.
+- Charts never animate (also covers reduced motion).
+
+### Export menu (`ExportMenu`)
+- Primary pill "Exportar" with download icon and chevron, `aria-expanded`. The menu is a `--bg`
+  card with `--shadow`, 14px radius, min width 260px (left-aligned on phones, right from 768px);
+  items are icon + title `0.88rem/600` + hint `0.74rem`, hover/focus `--surface-tint`, Escape closes.
+- PDF: every `[data-pdf-block]` is captured with the dashboard forced to the light island at a
+  1280px desktop layout, then placed on A4 (wide blocks full width, half blocks paired), never
+  split across pages. A hidden header block (store, title, period, generation date) is shown only
+  while exporting. A full-screen "Generando PDF…" overlay hides the reflow.
+
+### Other building blocks
+- Chips (`0.72rem/700` pills): accent, warning, danger, neutral. Buttons: primary (lavender),
+  secondary (`--surface-tint`), warning (amber), danger (outlined red), ghost; `--sm` and `--block`.
+- Fields: label `0.85rem/600`, input with 1px `--border`, 8px radius, `--accent` focus ring; hints
+  `0.78rem`; errors `0.8rem/600` mixed red under the field. Money inputs show a `$` prefix.
+- Switch (`role="switch"`), segmented control (tint track, accent active pill), steppers
+  (`− n +` pill with a `--border` ring), icon picker (44px tint squares, accent ring when chosen),
+  toasts (dark `--text-h` pill at the bottom, link + close), storage notice (amber, top-right).
+
 ## Data rules
 
-- Categories are fixed: `artesanal`, `paleta`, `milkshake`, `bebida` (labels Artesanales,
-  Paletas, Milkshakes, Bebidas). Unknown categories fall into "Otros".
-- Prices are stored as numbers in USD. For *artesanal* items the stored price is **per scoop**
-  (bola); the order line price is `price × scoops`.
-- Delivery adds a flat `$0.30` surcharge; IVA is 10% of subtotal + surcharge.
-- Images are optional data URLs uploaded by staff; when absent the colour swatch is shown.
+- Categories live in Redux (`categories`): name, icon, order, `buildable`, `archived`;
+  `Artesanales` is protected and always buildable. The menu shows active categories in their order,
+  only when they have active products. Unknown categories migrate to "Otros".
+- All money is integer cents (`priceCents`, `costCents`). Buildable products are priced **per
+  scoop**; a built line costs Σ scoops + envase + extras + toppings. Plain lines use `priceCents`.
+- Delivery surcharge and IVA come from Ajustes (defaults $0.30 and 10 %); IVA is rounded once on
+  subtotal + surcharge. Income in the dashboard excludes IVA.
+- Envases, extras and toppings are catalog options with a price (0 = "Incluido") and no stock.
+- Order lines freeze names, prices and costs (snapshots) when added; later price changes do not
+  touch registered orders. Each scoop consumes one unit of its flavor's stock.
+- Images are compressed to 512px WebP/JPEG data URLs; without one the colour swatch is shown.
+- Everything persists in `localStorage` under `ics-state-v1` (versioned, migrated on load).
 
 ## Checklist for a new screen
 
 - [ ] Uses tokens only; teal for state, lavender for the one primary action, amber for the
       cautionary secondary, red only for destructive.
 - [ ] Blocks are `--surface-tint` cards, not bordered boxes.
-- [ ] Headings follow the scale above; copy is Spanish on customer surfaces.
+- [ ] Headings follow the scale above; all copy is Spanish (`src/lib/texts.ts` for shared strings).
+- [ ] Status never relies on colour alone (icon or word next to it).
 - [ ] Designed at 375px first, then checked at 768px and 1280px; no horizontal overflow at any width.
 - [ ] Keyboard reachable with visible focus; overlays trap focus and close on Escape.
 - [ ] Reduced-motion respected.

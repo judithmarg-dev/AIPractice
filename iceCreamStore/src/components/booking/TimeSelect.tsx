@@ -1,4 +1,3 @@
-'use client'
 import { TIME_SLOTS } from '@/data/timeSlots'
 
 interface TimeSelectProps {
@@ -11,7 +10,7 @@ export function TimeSelect({ value, error, onChange }: TimeSelectProps) {
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor="time" className="text-sm font-medium" style={{ color: 'var(--text-h)' }}>
-        Time
+        Hora
       </label>
       <select
         id="time"
@@ -19,17 +18,17 @@ export function TimeSelect({ value, error, onChange }: TimeSelectProps) {
         onChange={(e) => onChange(e.target.value)}
         className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2"
         style={{
-          borderColor: error ? '#ef4444' : 'var(--border)',
+          borderColor: error ? 'var(--danger)' : 'var(--border)',
           background: 'var(--bg)',
           color: value ? 'var(--text-h)' : 'var(--text)',
         }}
       >
-        <option value="">Select a time</option>
+        <option value="">Elige un horario</option>
         {TIME_SLOTS.map((slot) => (
           <option key={slot} value={slot}>{slot}</option>
         ))}
       </select>
-      {error && <p className="text-xs" style={{ color: '#ef4444' }}>{error}</p>}
+      {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
     </div>
   )
 }

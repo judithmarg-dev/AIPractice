@@ -1,73 +1,117 @@
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { archiveItem, selectActiveItems } from '@/store/slices/inventorySlice'
-import { categoryLabel } from '@/types/flavor'
+import { adjustStock, archiveProduct, selectActiveProducts } from '@/store/slices/inventorySlice'
+import { selectActiveCategories, selectCategoryMap } from '@/store/slices/categoriesSlice'
+import { selectSettings } from '@/store/slices/settingsSlice'
+import { pushToast } from '@/store/slices/uiSlice'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { ScoopIcon } from '@/components/FlavorTile'
+import { Icon } from '@/components/icons'
+import { formatMoney } from '@/lib/money'
+import { T } from '@/lib/texts'
+import type { Product } from '@/types/models'
 
 export default function InventoryPage() {
   const dispatch = useAppDispatch()
-  const items = useAppSelector(selectActiveItems)
+  const confirm = useConfirm()
+  const products = useAppSelector(selectActiveProducts)
+  const categories = useAppSelector(selectActiveCategories)
+  const categoryMap = useAppSelector(selectCategoryMap)
+  const { lowStockThreshold } = useAppSelector(selectSettings)
+
+  // Group by category in menu order; products of archived categories go last.
+  const order = new Map(categories.map((c, i) => [c.id, i]))
+  const sorted = [...products].sort(
+    (a, b) => (order.get(a.categoryId) ?? 99) - (order.get(b.categoryId) ?? 99) || a.name.localeCompare(b.name)
+  )
+
+  async function handleArchive(p: Product) {
+    const ok = await confirm({
+      title: `¿Archivar "${p.name}"?`,
+      message: 'Deja de aparecer en el menú. Los pedidos registrados no cambian.',
+      confirmLabel: 'Archivar',
+      tone: 'warning',
+    })
+    if (!ok) return
+    dispatch(archiveProduct(p.id))
+    dispatch(pushToast({ message: `"${p.name}" archivado` }))
+  }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-h)' }}>
-          Inventory
-        </h1>
-        <Link
-          to="/staff/inventory/new"
-          className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-          style={{ background: 'var(--accent)' }}
-        >
-          + Add item
-        </Link>
-      </div>
-
-      {!items.length ? (
-        <p className="text-sm" style={{ color: 'var(--text)' }}>No items yet. Add your first ice cream.</p>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border" style={{ borderColor: 'var(--border)' }}>
-          <table className="w-full text-sm">
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--accent-bg)' }}>
-                {['Name', 'Category', 'Price', 'Stock', 'Actions'].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-h)' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td className="px-4 py-3 font-medium" style={{ color: 'var(--text-h)' }}>{item.name}</td>
-                  <td className="px-4 py-3" style={{ color: 'var(--text)' }}>{categoryLabel(item.category)}</td>
-                  <td className="px-4 py-3" style={{ color: 'var(--text)' }}>${item.price.toFixed(2)}</td>
-                  <td className="px-4 py-3" style={{ color: item.inventory_count <= 5 ? '#ef4444' : 'var(--text)' }}>
-                    {item.inventory_count}
-                    {item.inventory_count <= 5 && <span className="ml-1 text-xs">⚠ low</span>}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <Link
-                        to={`/staff/inventory/${item.id}/edit`}
-                        className="px-3 py-1 rounded-lg text-xs font-medium border"
-                        style={{ borderColor: 'var(--border)', color: 'var(--text-h)' }}
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => dispatch(archiveItem(item.id))}
-                        className="px-3 py-1 rounded-lg text-xs font-medium"
-                        style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}
-                      >
-                        Archive
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="staff-page">
+      <header className="staff-page__head">
+        <div>
+          <h1 className="staff-page__title">Inventario</h1>
+          <p className="staff-page__subtitle">
+            Stock bajo: menos de {lowStockThreshold} unidades. Ajusta el stock rápido con − y +.
+          </p>
         </div>
+        <Link to="/staff/inventory/new" className="btn btn--primary">
+          <Icon name="plus" size={18} /> Nuevo producto
+        </Link>
+      </header>
+
+      {sorted.length === 0 ? (
+        <div className="empty-state">
+          <span className="empty-state__icon"><Icon name="box" size={32} /></span>
+          <p className="empty-state__title">No hay productos todavía</p>
+          <Link to="/staff/inventory/new" className="btn btn--primary">Crear el primer producto</Link>
+        </div>
+      ) : (
+        <ul className="card-list">
+          {sorted.map((p) => {
+            const category = categoryMap[p.categoryId]
+            const level = p.stock === 0 ? 'agotado' : p.stock < lowStockThreshold ? 'bajo' : null
+            return (
+              <li key={p.id} className="list-card">
+                <span className="list-card__swatch" style={{ '--flavor-color': p.color } as React.CSSProperties} aria-hidden="true">
+                  {p.image ? <img src={p.image} alt="" /> : <ScoopIcon size={24} />}
+                </span>
+                <div className="list-card__body">
+                  <p className="list-card__title">{p.name}</p>
+                  <p className="list-card__meta">
+                    {category?.name ?? 'Sin categoría'} · {formatMoney(p.priceCents)}
+                    {category?.buildable ? ' / bola' : ''}
+                    {p.costCents === undefined && <span className="chip chip--neutral">Sin costo</span>}
+                    {level === 'agotado' && <span className="chip chip--danger"><Icon name="alert" size={12} /> {T.soldOut}</span>}
+                    {level === 'bajo' && <span className="chip chip--warning"><Icon name="alert" size={12} /> Stock bajo</span>}
+                  </p>
+                </div>
+                <div className="list-card__stock" role="group" aria-label={`Stock de ${p.name}`}>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    onClick={() => dispatch(adjustStock({ id: p.id, delta: -1 }))}
+                    disabled={p.stock === 0}
+                    aria-label={`Quitar una unidad de ${p.name}`}
+                  >
+                    <Icon name="minus" size={16} />
+                  </button>
+                  <span className="list-card__stock-value" aria-live="polite">
+                    {p.stock}
+                    <span className="sr-only"> unidades</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    onClick={() => dispatch(adjustStock({ id: p.id, delta: 1 }))}
+                    aria-label={`Añadir una unidad de ${p.name}`}
+                  >
+                    <Icon name="plus" size={16} />
+                  </button>
+                </div>
+                <div className="list-card__actions">
+                  <Link to={`/staff/inventory/${p.id}/edit`} className="icon-btn" aria-label={`Editar ${p.name}`}>
+                    <Icon name="edit" size={18} />
+                  </Link>
+                  <button type="button" className="icon-btn icon-btn--danger" onClick={() => handleArchive(p)} aria-label={`Archivar ${p.name}`}>
+                    <Icon name="archive" size={18} />
+                  </button>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
       )}
     </div>
   )

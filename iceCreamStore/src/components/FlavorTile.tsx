@@ -1,10 +1,13 @@
-import type { Flavor } from '../types/flavor'
+import type { Product } from '@/types/models'
+import { formatMoney } from '@/lib/money'
+import { T } from '@/lib/texts'
 
 interface FlavorTileProps {
-  flavor: Flavor
+  product: Product
+  /** Buildable products open the build modal and are priced per scoop. */
+  buildable: boolean
   index: number
   isSelected?: boolean
-  soldOut?: boolean
   onClick?: () => void
 }
 
@@ -29,21 +32,20 @@ export function ScoopIcon({ size = 52 }: { size?: number }) {
   )
 }
 
-export function FlavorTile({ flavor, index, isSelected = false, soldOut = false, onClick }: FlavorTileProps) {
-  const priceLabel =
-    flavor.category === 'artesanal'
-      ? `$${flavor.price.toFixed(2)} / bola`
-      : `$${flavor.price.toFixed(2)}`
+export function FlavorTile({ product, buildable, index, isSelected = false, onClick }: FlavorTileProps) {
+  const soldOut = product.stock <= 0
+  const priceLabel = buildable ? `${formatMoney(product.priceCents)} / bola` : formatMoney(product.priceCents)
 
   return (
     <article
-      className={`flavor-tile${isSelected ? ' flavor-tile--selected' : ''}`}
-      style={{ '--flavor-color': flavor.imagePlaceholder, '--i': index } as React.CSSProperties}
+      className={`flavor-tile${isSelected ? ' flavor-tile--selected' : ''}${soldOut ? ' flavor-tile--sold-out' : ''}`}
+      style={{ '--flavor-color': product.color, '--i': index } as React.CSSProperties}
       onClick={onClick}
       role="button"
       tabIndex={0}
-      aria-expanded={isSelected}
-      aria-label={`${flavor.name}, ${priceLabel}${soldOut ? ', agotado' : ''}`}
+      aria-haspopup={buildable ? 'dialog' : undefined}
+      aria-expanded={buildable ? undefined : isSelected}
+      aria-label={`${product.name}, ${priceLabel}${soldOut ? `, ${T.soldOut.toLowerCase()}` : ''}`}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && onClick) {
           e.preventDefault()
@@ -52,11 +54,11 @@ export function FlavorTile({ flavor, index, isSelected = false, soldOut = false,
       }}
     >
       <div className="flavor-tile__image" aria-hidden="true">
-        {flavor.image ? <img src={flavor.image} alt="" /> : <ScoopIcon />}
+        {product.image ? <img src={product.image} alt="" /> : <ScoopIcon />}
       </div>
-      <h3 className="flavor-tile__name">{flavor.name}</h3>
+      <h3 className="flavor-tile__name">{product.name}</h3>
       <span className="flavor-tile__price">{priceLabel}</span>
-      {soldOut && <span className="flavor-tile__note">Agotado</span>}
+      {soldOut && <span className="chip chip--danger flavor-tile__note">{T.soldOut}</span>}
     </article>
   )
 }

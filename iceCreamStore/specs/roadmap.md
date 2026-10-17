@@ -1,6 +1,6 @@
 # Roadmap
 
-Six nano-phases, each independently shippable. Phases P0–P2 are pure front-end. Phases P3–P5 introduce the state management layer progressively.
+Seven nano-phases, each independently shippable. Phases P0–P2 are pure front-end. Phases P3–P5 introduce the state management layer progressively.
 
 ---
 
@@ -55,6 +55,17 @@ _Goal: managers get actionable insights (Steve's marketing + Mary's dashboard)._
 - Charts (Recharts or similar)
 - Export to CSV
 
+## P6 — Panel del propietario
+_Goal: el dueño toma pedidos, controla la cola del mostrador y entiende el negocio con un dashboard visual. Spec completa en `specs/panel-propietario-2026-10-17/`._
+
+- Categorías dinámicas (crear, editar, ordenar, archivar)
+- Catálogo de opciones (envases, extras, toppings) con precio
+- Modal de armado de helado artesanal: bolas de otros sabores, envase, extras y toppings, con total en vivo
+- Ciclo de vida del pedido y cola del mostrador con edición
+- Dashboard de ventas solo con gráficos (día, semana, mes), comparativas y señales de abastecimiento
+- Exportación a PDF y CSV
+- Persistencia en `localStorage`, datos de demostración y toda la app en español
+
 ---
 
 > Phases may overlap in a sprint, but each phase's deliverable must be demo-able on its own.
@@ -68,3 +79,4 @@ _Goal: managers get actionable insights (Steve's marketing + Mary's dashboard)._
 | 2026-10-07 | Remove Supabase + Next.js; replace with Redux Toolkit | App failed to run after Supabase and Next.js were added. Reverting to Vite + React; managing state in-memory with Redux Toolkit. Backend strategy re-evaluated post-MVP. |
 | 2026-10-08 | Narrow scope to staff-admin only; adopt tablet-first design _(tablet-first superseded 2026-10-16)_ | Customers are no longer a user type of the app. All screens are designed for a staff member or owner on a tablet (≥ 768 px base). P1 catalog and P2 booking become staff-side tools; customer-facing framing removed from all specs. Mobile (< 768 px) breakpoints are out of scope. |
 | 2026-10-16 | Replace tablet-first with mobile-first | The menu and order screens are designed phone-first (the order mock is phone-width). Base styles target phones; tablet (`min-width: 768px`) and desktop (`min-width: 1024px`) layer on top. Supersedes the 2026-10-08 tablet-first decision and puts mobile back in scope. |
+| 2026-10-17 | Foco en el propietario; completar el producto en español (P6) | La herramienta es del dueño de la heladería: toma de pedidos, cola, dashboard y exportaciones. Se añaden categorías dinámicas, opciones con precio y modal de armado. Ingresos se miden sin IVA y la ganancia requiere un costo opcional por producto. Ver `specs/panel-propietario-2026-10-17/requirements.md`. |

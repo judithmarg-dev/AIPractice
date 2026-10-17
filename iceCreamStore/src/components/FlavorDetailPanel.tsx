@@ -1,33 +1,42 @@
-import { useEffect, useRef, useCallback, useState } from 'react'
-import type { Flavor, Scoops } from '../types/flavor'
-import { categoryLabel } from '../types/flavor'
-import { useAppDispatch } from '@/store/hooks'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { addLine } from '@/store/slices/orderSlice'
+import { selectCategoryMap } from '@/store/slices/categoriesSlice'
+import { selectAllOptions } from '@/store/slices/optionsSlice'
+import { pushToast } from '@/store/slices/uiSlice'
+import { selectAvailableStock } from '@/store/selectors'
+import { formatMoney } from '@/lib/money'
+import { makeProductLine } from '@/lib/orderMath'
+import { T } from '@/lib/texts'
+import type { OrderLine, Product } from '@/types/models'
+import { Icon } from './icons'
+import { Stepper } from './ui/Stepper'
 import { ScoopIcon } from './FlavorTile'
-import { ScoopPicker } from './ScoopPicker'
 import { OrderPanel } from './OrderPanel'
 
 interface FlavorDetailPanelProps {
-  /** Item being configured, or null when the panel only shows the order. */
-  flavor: Flavor | null
+  /** Non-buildable product being added, or null when the panel only shows the order. */
+  product: Product | null
   /** Whether to show the order block under the item. */
   showOrder: boolean
   onClose: () => void
+  onEditLine: (line: OrderLine) => void
 }
 
 const DESKTOP_QUERY = '(min-width: 1024px)'
-const money = (n: number) => `$${n.toFixed(2)}`
 
-export function FlavorDetailPanel({ flavor, showOrder, onClose }: FlavorDetailPanelProps) {
+export function FlavorDetailPanel({ product, showOrder, onClose, onEditLine }: FlavorDetailPanelProps) {
   const dispatch = useAppDispatch()
-  const [scoops, setScoops] = useState<Scoops>(2)
+  const categories = useAppSelector(selectCategoryMap)
+  const options = useAppSelector(selectAllOptions)
+  const available = useAppSelector((s) => selectAvailableStock(s, null))
+  const [qty, setQty] = useState(1)
   const panelRef = useRef<HTMLElement>(null)
-  const previousFocusRef = useRef<HTMLElement | null>(null)
 
   const trapFocus = useCallback((e: KeyboardEvent) => {
     if (e.key !== 'Tab' || !panelRef.current) return
     const focusable = panelRef.current.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button:not([disabled]), [href], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])'
     )
     if (focusable.length === 0) return
     const first = focusable[0]
@@ -41,10 +50,10 @@ export function FlavorDetailPanel({ flavor, showOrder, onClose }: FlavorDetailPa
     }
   }, [])
 
-  // Escape closes the panel whenever it is open, at every breakpoint.
+  // Escape closes the panel whenever it is open, at every breakpoint (dialogs above it stop the event).
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !e.defaultPrevented) {
         e.preventDefault()
         onClose()
       }
@@ -55,91 +64,84 @@ export function FlavorDetailPanel({ flavor, showOrder, onClose }: FlavorDetailPa
 
   // Below desktop the panel is an overlay drawer: move focus in and trap it.
   useEffect(() => {
-    // On desktop the panel is a sticky column, not an overlay: no focus trap.
     if (window.matchMedia(DESKTOP_QUERY).matches) return
-    previousFocusRef.current = document.activeElement as HTMLElement
+    const previous = document.activeElement as HTMLElement | null
     panelRef.current?.querySelector<HTMLElement>('button')?.focus()
     document.addEventListener('keydown', trapFocus)
     return () => {
       document.removeEventListener('keydown', trapFocus)
-      previousFocusRef.current?.focus()
+      if (previous && document.contains(previous)) previous.focus()
     }
-  }, [flavor, trapFocus])
+  }, [product?.id, trapFocus])
 
-  // Reset the scoop choice whenever a different item is opened.
   useEffect(() => {
-    setScoops(2)
-  }, [flavor?.id])
+    setQty(1)
+  }, [product?.id])
 
-  const isArtesanal = flavor?.category === 'artesanal'
-  const unitPrice = flavor ? (isArtesanal ? flavor.price * scoops : flavor.price) : 0
+  const free = product ? Math.max(0, available[product.id] ?? 0) : 0
+  const soldOut = product !== null && free === 0
+  const container = product?.defaultContainerId ? options.find((o) => o.id === product.defaultContainerId) : undefined
 
   const handleAdd = () => {
-    if (!flavor) return
-    const details: string[] = []
-    if (flavor.container) details.push(flavor.container)
-    if (isArtesanal) details.push(`${scoops} ${scoops === 1 ? 'bola' : 'bolas'}`)
-    dispatch(
-      addLine({
-        productId: flavor.id,
-        name: flavor.name,
-        details,
-        unitPrice,
-        scoops: isArtesanal ? scoops : undefined,
-      })
-    )
+    if (!product || soldOut) return
+    const amount = Math.min(qty, free)
+    dispatch(addLine(makeProductLine({ lineId: crypto.randomUUID(), product, qty: amount, note: container?.name })))
+    dispatch(pushToast({ message: `${product.name} agregado al pedido` }))
     onClose()
   }
 
   return (
-    <aside className="flavor-detail-panel" aria-label={flavor ? 'Detalle del producto' : 'Orden actual'} ref={panelRef}>
+    <aside className="flavor-detail-panel" aria-label={product ? 'Detalle del producto' : 'Orden actual'} ref={panelRef}>
       <div className="flavor-detail-panel__overlay" onClick={onClose} aria-hidden="true" />
       <div className="flavor-detail-panel__content">
         <button
-          className={`flavor-detail-panel__close-btn${flavor ? '' : ' flavor-detail-panel__close-btn--plain'}`}
+          className={`flavor-detail-panel__close-btn${product ? '' : ' flavor-detail-panel__close-btn--plain'}`}
           onClick={onClose}
-          aria-label={flavor ? 'Cerrar detalle' : 'Cerrar orden'}
+          aria-label={product ? 'Cerrar detalle' : 'Cerrar orden'}
           type="button"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          <Icon name="close" />
         </button>
 
-        {flavor && (
+        {product && (
           <>
             <div
               className="flavor-detail-panel__hero"
-              style={{ '--flavor-color': flavor.imagePlaceholder } as React.CSSProperties}
+              style={{ '--flavor-color': product.color } as React.CSSProperties}
               aria-hidden="true"
             >
-              {flavor.image ? <img src={flavor.image} alt="" /> : <ScoopIcon size={88} />}
+              {product.image ? <img src={product.image} alt="" /> : <ScoopIcon size={88} />}
             </div>
 
             <div className="flavor-detail-panel__body">
-              <span className="flavor-detail-panel__category">{categoryLabel(flavor.category)}</span>
-              <h2 className="flavor-detail-panel__title">{flavor.name}</h2>
-              {flavor.container && (
-                <p className="flavor-detail-panel__container">{flavor.container}</p>
-              )}
-              <p className="flavor-detail-panel__description">{flavor.description}</p>
-
-              {isArtesanal && (
-                <ScoopPicker selected={scoops} pricePerScoop={flavor.price} onChange={setScoops} />
-              )}
+              <span className="flavor-detail-panel__category">{categories[product.categoryId]?.name ?? 'Otros'}</span>
+              <h2 className="flavor-detail-panel__title">{product.name}</h2>
+              {container && <p className="flavor-detail-panel__container">{container.name}</p>}
+              <p className="flavor-detail-panel__description">{product.description}</p>
 
               <div className="flavor-detail-panel__actions">
-                <button type="button" className="flavor-detail-panel__action-btn" onClick={handleAdd}>
-                  <span>Agregar a la orden</span>
-                  <span className="flavor-detail-panel__action-price">{money(unitPrice)}</span>
+                {soldOut ? (
+                  <p className="flavor-detail-panel__soldout">
+                    <span className="chip chip--danger">{T.soldOut}</span> No se puede agregar al pedido.
+                  </p>
+                ) : (
+                  <div className="flavor-detail-panel__qty">
+                    <span className="flavor-detail-panel__qty-label">Cantidad</span>
+                    <Stepper value={qty} onChange={setQty} min={1} max={Math.min(20, free)} label={`Cantidad de ${product.name}`} />
+                  </div>
+                )}
+                <button type="button" className="flavor-detail-panel__action-btn" onClick={handleAdd} disabled={soldOut}>
+                  <span>{T.addToOrder}</span>
+                  <span className="flavor-detail-panel__action-price" aria-live="polite">
+                    {formatMoney(product.priceCents * qty)}
+                  </span>
                 </button>
               </div>
             </div>
           </>
         )}
 
-        {showOrder && <OrderPanel />}
+        {showOrder && <OrderPanel onEditLine={onEditLine} />}
       </div>
     </aside>
   )

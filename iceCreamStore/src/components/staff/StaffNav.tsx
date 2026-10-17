@@ -1,17 +1,21 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '@/store/hooks'
 import { logout } from '@/store/slices/authSlice'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import '../../catalog.css'
+import { Icon, type UiIconId } from '@/components/icons'
+import { QueueBadge } from './QueueBadge'
 
-const NAV = [
-  { href: '/staff/inventory', label: 'Inventory' },
-  { href: '/staff/bookings',  label: 'Bookings' },
-  { href: '/staff/analytics', label: 'Analytics' },
+const NAV: { href: string; label: string; icon: UiIconId }[] = [
+  { href: '/staff/dashboard', label: 'Dashboard', icon: 'chart' },
+  { href: '/staff/cola', label: 'Cola', icon: 'queue' },
+  { href: '/staff/inventory', label: 'Inventario', icon: 'box' },
+  { href: '/staff/categorias', label: 'Categorías', icon: 'layers' },
+  { href: '/staff/opciones', label: 'Opciones', icon: 'sliders' },
+  { href: '/staff/bookings', label: 'Reservas', icon: 'calendar' },
+  { href: '/staff/ajustes', label: 'Ajustes', icon: 'settings' },
 ]
 
 export function StaffNav() {
-  const { pathname } = useLocation()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
@@ -21,38 +25,41 @@ export function StaffNav() {
   }
 
   return (
-    <nav
-      className="flex items-center justify-between px-6 py-3 border-b"
-      style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}
-    >
-      <div className="flex items-center gap-1">
-        <Link to="/" className="text-sm font-bold mr-4" style={{ color: 'var(--accent)' }}>
-          🍦 ICS
-        </Link>
-        {NAV.map(({ href, label }) => (
-          <Link
-            key={href}
-            to={href}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            style={{
-              background: pathname.startsWith(href) ? 'var(--accent-bg)' : 'transparent',
-              color: pathname.startsWith(href) ? 'var(--accent)' : 'var(--text)',
-            }}
-          >
-            {label}
+    <>
+      <header className="site-header">
+        <div className="site-header__inner">
+          <Link to="/" className="site-header__brand" aria-label="IceCreamStore, ir al menú">
+            <span className="site-header__logo" aria-hidden="true">🍦</span>
+            <span className="site-header__wordmark">IceCreamStore</span>
           </Link>
-        ))}
-      </div>
-      <div className="flex items-center gap-2">
-        <ThemeToggle />
-      <button
-        onClick={signOut}
-        className="text-sm px-3 py-1.5 rounded-lg"
-        style={{ color: 'var(--text)', background: 'transparent' }}
-      >
-        Sign out
-      </button>
-      </div>
-    </nav>
+          <span className="staff-nav__tag">Panel del propietario</span>
+          <div className="site-header__actions">
+            <Link to="/" className="site-header__btn">
+              <span className="site-header__btn-short">Menú</span>
+              <span className="site-header__btn-long">Tomar pedidos</span>
+            </Link>
+            <ThemeToggle />
+            <button type="button" className="theme-toggle" onClick={signOut} aria-label="Cerrar sesión" title="Cerrar sesión">
+              <Icon name="logout" size={18} />
+            </button>
+          </div>
+        </div>
+      </header>
+      <nav className="site-subnav staff-nav" aria-label="Panel del propietario">
+        <div className="site-subnav__inner staff-nav__inner">
+          {NAV.map(({ href, label, icon }) => (
+            <NavLink
+              key={href}
+              to={href}
+              className={({ isActive }) => `site-subnav__tab staff-nav__tab${isActive ? ' site-subnav__tab--active' : ''}`}
+            >
+              <Icon name={icon} size={16} />
+              {label}
+              {href === '/staff/cola' && <QueueBadge />}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+    </>
   )
 }

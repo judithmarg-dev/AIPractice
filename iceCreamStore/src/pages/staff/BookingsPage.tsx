@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectAllBookings, updateBookingStatus } from '@/store/slices/bookingsSlice'
 import { StatusBadge } from '@/components/staff/StatusBadge'
+import { ExportButton } from '@/components/staff/ExportButton'
 import type { BookingStatus } from '@/types/booking'
 
 export default function BookingsPage() {
@@ -12,50 +13,46 @@ export default function BookingsPage() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-h)' }}>Bookings</h1>
+    <div className="staff-page">
+      <header className="staff-page__head">
+        <div>
+          <h1 className="staff-page__title">Reservas</h1>
+          <p className="staff-page__subtitle">Mesas reservadas desde la página pública.</p>
+        </div>
+        <ExportButton />
+      </header>
 
-      <div className="overflow-x-auto rounded-xl border" style={{ borderColor: 'var(--border)' }}>
-        <table className="w-full text-sm">
+      <div className="table-wrap">
+        <table className="data-table">
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--accent-bg)' }}>
-              {['Name', 'Date', 'Time', 'Guests', 'Contact', 'Status', 'Actions'].map((h) => (
-                <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-h)' }}>{h}</th>
+            <tr>
+              {['Nombre', 'Fecha', 'Hora', 'Personas', 'Contacto', 'Estado', 'Acciones'].map((h) => (
+                <th key={h} scope="col">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {bookings.map((b) => (
-              <tr key={b.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td className="px-4 py-3 font-medium" style={{ color: 'var(--text-h)' }}>
-                  {b.first_name} {b.last_name}
-                </td>
-                <td className="px-4 py-3" style={{ color: 'var(--text)' }}>{b.date}</td>
-                <td className="px-4 py-3" style={{ color: 'var(--text)' }}>{b.time}</td>
-                <td className="px-4 py-3" style={{ color: 'var(--text)' }}>{b.party_size}</td>
-                <td className="px-4 py-3" style={{ color: 'var(--text)' }}>
+              <tr key={b.id}>
+                <td className="data-table__strong">{b.first_name} {b.last_name}</td>
+                <td>{new Date(b.date + 'T12:00:00').toLocaleDateString('es')}</td>
+                <td>{b.time}</td>
+                <td>{b.party_size}</td>
+                <td>
                   <div>{b.email}</div>
-                  <div className="text-xs">{b.phone}</div>
+                  <div className="data-table__small">{b.phone}</div>
                 </td>
-                <td className="px-4 py-3"><StatusBadge status={b.status} /></td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
+                <td><StatusBadge status={b.status} /></td>
+                <td>
+                  <div className="data-table__actions">
                     {b.status === 'pending' && (
-                      <button
-                        onClick={() => handleStatusChange(b.id, 'confirmed')}
-                        className="px-3 py-1 rounded-lg text-xs font-medium"
-                        style={{ background: 'rgba(34,197,94,0.12)', color: '#16a34a' }}
-                      >
-                        Confirm
+                      <button type="button" onClick={() => handleStatusChange(b.id, 'confirmed')} className="btn btn--secondary btn--sm">
+                        Confirmar
                       </button>
                     )}
                     {b.status !== 'cancelled' && (
-                      <button
-                        onClick={() => handleStatusChange(b.id, 'cancelled')}
-                        className="px-3 py-1 rounded-lg text-xs font-medium"
-                        style={{ background: 'rgba(239,68,68,0.12)', color: '#dc2626' }}
-                      >
-                        Cancel
+                      <button type="button" onClick={() => handleStatusChange(b.id, 'cancelled')} className="btn btn--warning btn--sm">
+                        Cancelar
                       </button>
                     )}
                   </div>
@@ -64,9 +61,7 @@ export default function BookingsPage() {
             ))}
           </tbody>
         </table>
-        {!bookings.length && (
-          <p className="px-4 py-8 text-center text-sm" style={{ color: 'var(--text)' }}>No bookings yet.</p>
-        )}
+        {!bookings.length && <p className="staff-page__empty data-table__empty">Todavía no hay reservas.</p>}
       </div>
     </div>
   )

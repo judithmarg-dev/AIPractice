@@ -11,23 +11,23 @@ function validate(form: BookingFormData): BookingFormErrors {
   const errors: BookingFormErrors = {}
   const today = new Date().toISOString().slice(0, 10)
 
-  if (!form.date) errors.date = 'Please select a date.'
-  else if (form.date < today) errors.date = 'Date must be today or in the future.'
+  if (!form.date) errors.date = 'Elige una fecha.'
+  else if (form.date < today) errors.date = 'La fecha debe ser hoy o posterior.'
 
-  if (!form.time) errors.time = 'Please select a time slot.'
-  if (!form.firstName.trim()) errors.firstName = 'First name is required.'
-  if (!form.lastName.trim()) errors.lastName = 'Last name is required.'
+  if (!form.time) errors.time = 'Elige un horario.'
+  if (!form.firstName.trim()) errors.firstName = 'El nombre es obligatorio.'
+  if (!form.lastName.trim()) errors.lastName = 'El apellido es obligatorio.'
 
   if (!form.email.trim()) {
-    errors.email = 'Email is required.'
+    errors.email = 'El correo es obligatorio.'
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = 'Enter a valid email address.'
+    errors.email = 'Escribe un correo válido.'
   }
 
   if (!form.phone.trim()) {
-    errors.phone = 'Phone number is required.'
+    errors.phone = 'El teléfono es obligatorio.'
   } else if (form.phone.replace(/[^\d]/g, '').length < 7) {
-    errors.phone = 'Enter at least 7 digits.'
+    errors.phone = 'Escribe al menos 7 dígitos.'
   }
 
   return errors
@@ -67,7 +67,7 @@ export default function BookingPage() {
       sessionStorage.setItem('booking_confirmation', JSON.stringify(form))
       navigate('/booking/confirmation')
     } catch {
-      setServerError('Something went wrong. Please try again.')
+      setServerError('Algo salió mal. Inténtalo de nuevo.')
     } finally {
       setSubmitting(false)
     }
@@ -77,14 +77,14 @@ export default function BookingPage() {
     <main>
       <div className="max-w-xl mx-auto px-4 py-12">
         <Link to="/" className="text-sm mb-6 inline-block" style={{ color: 'var(--accent)' }}>
-          ← Back to catalog
+          ← Volver al menú
         </Link>
 
         <h1 className="text-3xl font-bold mb-1" style={{ color: 'var(--text-h)' }}>
-          Book a Table
+          Reservar una mesa
         </h1>
         <p className="text-sm mb-8" style={{ color: 'var(--text)' }}>
-          Reserve your spot — we&apos;ll be ready when you arrive.
+          Reserva tu lugar y te esperamos con todo listo.
         </p>
 
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
@@ -111,7 +111,7 @@ export default function BookingPage() {
           </div>
 
           {serverError && (
-            <p className="text-sm rounded-lg px-4 py-3" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
+            <p className="text-sm rounded-lg px-4 py-3" style={{ background: 'color-mix(in srgb, var(--danger) 12%, transparent)', color: 'var(--danger)' }}>
               {serverError}
             </p>
           )}
@@ -122,7 +122,7 @@ export default function BookingPage() {
             className="w-full py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-60"
             style={{ background: 'var(--accent)' }}
           >
-            {submitting ? 'Reserving…' : 'Confirm Reservation'}
+            {submitting ? 'Reservando…' : 'Confirmar reserva'}
           </button>
         </form>
       </div>

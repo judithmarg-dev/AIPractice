@@ -18,12 +18,12 @@ export default function BookingConfirmationPage() {
   if (!booking) return null
 
   const rows = [
-    { label: 'Date', value: new Date(booking.date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) },
-    { label: 'Time', value: booking.time },
-    { label: 'Party size', value: `${booking.partySize} guest${booking.partySize !== 1 ? 's' : ''}` },
-    { label: 'Name', value: `${booking.firstName} ${booking.lastName}` },
-    { label: 'Email', value: booking.email },
-    { label: 'Phone', value: booking.phone },
+    { label: 'Fecha', value: new Date(booking.date + 'T12:00:00').toLocaleDateString('es', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) },
+    { label: 'Hora', value: booking.time },
+    { label: 'Personas', value: `${booking.partySize} ${booking.partySize !== 1 ? 'personas' : 'persona'}` },
+    { label: 'Nombre', value: `${booking.firstName} ${booking.lastName}` },
+    { label: 'Correo', value: booking.email },
+    { label: 'Teléfono', value: booking.phone },
   ]
 
   return (
@@ -40,10 +40,10 @@ export default function BookingConfirmationPage() {
         </div>
 
         <h1 className="text-2xl font-bold text-center mb-1" style={{ color: 'var(--text-h)' }}>
-          Reservation confirmed!
+          ¡Reserva confirmada!
         </h1>
         <p className="text-sm text-center mb-8" style={{ color: 'var(--text)' }}>
-          We look forward to seeing you.
+          Te esperamos.
         </p>
 
         <dl className="flex flex-col gap-3 mb-8">
@@ -60,7 +60,7 @@ export default function BookingConfirmationPage() {
           className="block w-full text-center py-3 rounded-xl font-semibold text-sm text-white"
           style={{ background: 'var(--accent)' }}
         >
-          Back to home
+          Volver al menú
         </Link>
       </div>
     </main>

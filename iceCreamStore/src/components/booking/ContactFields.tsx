@@ -1,4 +1,3 @@
-'use client'
 import type { BookingFormErrors } from '@/types/booking'
 
 interface Props {
@@ -29,12 +28,12 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2"
         style={{
-          borderColor: error ? '#ef4444' : 'var(--border)',
+          borderColor: error ? 'var(--danger)' : 'var(--border)',
           background: 'var(--bg)',
           color: 'var(--text-h)',
         }}
       />
-      {error && <p className="text-xs" style={{ color: '#ef4444' }}>{error}</p>}
+      {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
     </div>
   )
 }
@@ -42,10 +41,10 @@ function Field({
 export function ContactFields({ firstName, lastName, email, phone, errors, onChange }: Props) {
   return (
     <>
-      <Field id="firstName" label="First name" value={firstName} error={errors.firstName} onChange={(v) => onChange('firstName', v)} />
-      <Field id="lastName"  label="Last name"  value={lastName}  error={errors.lastName}  onChange={(v) => onChange('lastName', v)} />
-      <Field id="email"  label="Email"  type="email" value={email} error={errors.email} onChange={(v) => onChange('email', v)}  placeholder="you@example.com" />
-      <Field id="phone"  label="Phone"  type="tel"   value={phone} error={errors.phone} onChange={(v) => onChange('phone', v)}  placeholder="+1 555 000 0000" />
+      <Field id="firstName" label="Nombre" value={firstName} error={errors.firstName} onChange={(v) => onChange('firstName', v)} />
+      <Field id="lastName"  label="Apellido" value={lastName}  error={errors.lastName}  onChange={(v) => onChange('lastName', v)} />
+      <Field id="email"  label="Correo" type="email" value={email} error={errors.email} onChange={(v) => onChange('email', v)}  placeholder="tu@correo.com" />
+      <Field id="phone"  label="Teléfono" type="tel"   value={phone} error={errors.phone} onChange={(v) => onChange('phone', v)}  placeholder="+1 555 000 0000" />
     </>
   )
 }

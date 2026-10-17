@@ -1,48 +1,73 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { IceCream } from '@/types/iceCream'
-import type { Flavor } from '@/types/flavor'
-import flavorsData from '@/data/flavors.json'
+import { createSelector, createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit'
+import type { Product } from '@/types/models'
+import { INITIAL_CATALOG } from '../seed'
+import { removeOption } from './optionsSlice'
+import {
+  addDemoOrders,
+  cancelOrder,
+  chargeDraft,
+  removeDemoOrders,
+  saveEdit,
+  saveToQueue,
+} from './orderSlice'
 
-const flavors = flavorsData as Flavor[]
+type WithInventory = { inventory: Product[] }
 
-const initialState: IceCream[] = flavors.map((f) => ({
-  id: f.id,
-  name: f.name,
-  description: f.description,
-  category: f.category,
-  image_placeholder: f.imagePlaceholder,
-  price: f.price,
-  image: f.image,
-  container: f.container,
-  inventory_count: 10,
-  archived: false,
-  created_at: new Date().toISOString(),
-}))
+function applyDelta(state: Product[], delta: Record<string, number>) {
+  for (const [id, d] of Object.entries(delta)) {
+    const product = state.find((p) => p.id === id)
+    if (product) product.stock = Math.max(0, product.stock + d)
+  }
+}
+
+function setStocks(state: Product[], stocks: Record<string, number>) {
+  for (const product of state) {
+    if (stocks[product.id] !== undefined) product.stock = stocks[product.id]
+  }
+}
 
 const inventorySlice = createSlice({
   name: 'inventory',
-  initialState,
+  initialState: INITIAL_CATALOG.products,
   reducers: {
-    addItem(state, action: PayloadAction<IceCream>) {
+    addProduct(state, action: PayloadAction<Product>) {
       state.push(action.payload)
     },
-    updateItem(state, action: PayloadAction<IceCream>) {
-      const index = state.findIndex((item) => item.id === action.payload.id)
+    updateProduct(state, action: PayloadAction<Product>) {
+      const index = state.findIndex((p) => p.id === action.payload.id)
       if (index !== -1) state[index] = action.payload
     },
-    archiveItem(state, action: PayloadAction<string>) {
-      const item = state.find((i) => i.id === action.payload)
-      if (item) item.archived = true
+    archiveProduct(state, action: PayloadAction<string>) {
+      const product = state.find((p) => p.id === action.payload)
+      if (product) product.archived = true
     },
+    /** Quick ± adjustment from the inventory list (RF-3.4). */
+    adjustStock(state, action: PayloadAction<{ id: string; delta: number }>) {
+      applyDelta(state, { [action.payload.id]: action.payload.delta })
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(removeOption, (state, action) => {
+        for (const p of state) if (p.defaultContainerId === action.payload) p.defaultContainerId = undefined
+      })
+      .addCase(addDemoOrders, (state, action) => setStocks(state, action.payload.demoStock))
+      .addCase(removeDemoOrders, (state, action) => setStocks(state, action.payload.restoreStock))
+      .addMatcher(isAnyOf(saveToQueue, chargeDraft, cancelOrder, saveEdit), (state, action) =>
+        applyDelta(state, action.payload.stockDelta)
+      )
   },
 })
 
-export const { addItem, updateItem, archiveItem } = inventorySlice.actions
+export const { addProduct, updateProduct, archiveProduct, adjustStock } = inventorySlice.actions
 
-export const selectActiveItems = (state: { inventory: IceCream[] }) =>
-  state.inventory.filter((i) => !i.archived)
+export const selectAllProducts = (state: WithInventory) => state.inventory
 
-export const selectItemById = (state: { inventory: IceCream[] }, id: string) =>
-  state.inventory.find((i) => i.id === id)
+export const selectActiveProducts = createSelector([selectAllProducts], (products) =>
+  products.filter((p) => !p.archived)
+)
+
+export const selectProductById = (state: WithInventory, id: string) =>
+  state.inventory.find((p) => p.id === id)
 
 export default inventorySlice.reducer

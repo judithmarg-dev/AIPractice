@@ -1,4 +1,3 @@
-'use client'
 interface DateInputProps {
   value: string
   error?: string
@@ -10,7 +9,7 @@ export function DateInput({ value, error, onChange }: DateInputProps) {
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor="date" className="text-sm font-medium" style={{ color: 'var(--text-h)' }}>
-        Date
+        Fecha
       </label>
       <input
         id="date"
@@ -20,12 +19,12 @@ export function DateInput({ value, error, onChange }: DateInputProps) {
         onChange={(e) => onChange(e.target.value)}
         className="rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2"
         style={{
-          borderColor: error ? '#ef4444' : 'var(--border)',
+          borderColor: error ? 'var(--danger)' : 'var(--border)',
           background: 'var(--bg)',
           color: 'var(--text-h)',
         }}
       />
-      {error && <p className="text-xs" style={{ color: '#ef4444' }}>{error}</p>}
+      {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
     </div>
   )
 }
