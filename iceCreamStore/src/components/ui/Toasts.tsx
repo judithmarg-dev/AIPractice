@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Icon } from '@/components/icons'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { dismissToast, selectStorageError, selectToasts, type Toast } from '@/store/slices/uiSlice'
+import { dismissToast, selectStorageError, selectSyncError, selectToasts, type Toast } from '@/store/slices/uiSlice'
 import { T } from '@/lib/texts'
 
 function ToastItem({ toast }: { toast: Toast }) {
@@ -32,6 +32,7 @@ function ToastItem({ toast }: { toast: Toast }) {
 export function Toasts() {
   const toasts = useAppSelector(selectToasts)
   const storageError = useAppSelector(selectStorageError)
+  const syncError = useAppSelector(selectSyncError)
   return (
     <>
       <div className="toasts" role="status" aria-live="polite">
@@ -39,9 +40,9 @@ export function Toasts() {
           <ToastItem key={t.id} toast={t} />
         ))}
       </div>
-      {storageError && (
-        <p className="storage-notice" role="note">
-          <Icon name="alert" size={16} /> {T.storageFailed}
+      {(syncError || storageError) && (
+        <p className="storage-notice" role="note" title={syncError ?? undefined}>
+          <Icon name="alert" size={16} /> {syncError ?? T.storageFailed}
         </p>
       )}
     </>

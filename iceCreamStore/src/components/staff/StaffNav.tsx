@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '@/store/hooks'
-import { logout } from '@/store/slices/authSlice'
+import { signOut as signOutAction } from '@/store/authActions'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Icon, type UiIconId } from '@/components/icons'
 import { QueueBadge } from './QueueBadge'
@@ -19,8 +19,8 @@ export function StaffNav() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
-  function signOut() {
-    dispatch(logout())
+  async function signOut() {
+    await dispatch(signOutAction())
     navigate('/login')
   }
 

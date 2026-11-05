@@ -169,7 +169,7 @@ export default function SettingsPage() {
       <section className="panel-card" aria-labelledby="data-heading">
         <h2 id="data-heading" className="panel-card__title">Datos de la tienda</h2>
         <p className="panel-card__text">
-          Todo se guarda en este navegador. Los datos de demostración sirven para ver el dashboard con actividad.
+          Todo se guarda en la base de datos de Supabase y se comparte entre dispositivos. Los datos de demostración sirven para ver el dashboard con actividad.
         </p>
         <div className="data-actions">
           <button type="button" className="btn btn--secondary" onClick={handleLoadDemo}>
