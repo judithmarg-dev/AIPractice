@@ -1,65 +1,92 @@
 [
   {
-    "id": "strawberry-bliss",
-    "name": "Strawberry Bliss",
-    "description": "Bright, summery strawberry made with sun-ripened fruit and a touch of lemon zest.",
-    "category": "fruit",
-    "imagePlaceholder": "#f9a8d4"
+    "id": "pistacho-siciliano",
+    "name": "Pistacho Siciliano",
+    "description": "Pistacho tostado de Sicilia, cremoso y con un toque de sal marina.",
+    "category": "artesanal",
+    "imagePlaceholder": "#a3e635",
+    "price": 2.6,
+    "container": "Barquillo Dulce"
   },
   {
-    "id": "mango-tango",
-    "name": "Mango Tango",
-    "description": "Tropical Alphonso mango with a hint of chilli for a bold, sweet-heat finish.",
-    "category": "fruit",
-    "imagePlaceholder": "#fcd34d"
+    "id": "dulce-de-leche",
+    "name": "Dulce de Leche",
+    "description": "Dulce de leche cocido a fuego lento con vetas de caramelo.",
+    "category": "artesanal",
+    "imagePlaceholder": "#d97706",
+    "price": 2.6,
+    "container": "Barquillo Dulce"
   },
   {
-    "id": "blueberry-swirl",
-    "name": "Blueberry Swirl",
-    "description": "Wild blueberries swirled through a creamy vanilla base for a beautiful purple ribbon.",
-    "category": "fruit",
-    "imagePlaceholder": "#a78bfa"
+    "id": "chocolate-intenso",
+    "name": "Chocolate Intenso",
+    "description": "Chocolate negro 72% de origen único, intenso y suave.",
+    "category": "artesanal",
+    "imagePlaceholder": "#78350f",
+    "price": 2.6,
+    "container": "Vaso de Cartón"
   },
   {
-    "id": "dark-decadence",
-    "name": "Dark Decadence",
-    "description": "72% single-origin dark chocolate, intensely bittersweet and impossibly smooth.",
-    "category": "chocolate",
-    "imagePlaceholder": "#78350f"
+    "id": "fresa-del-huerto",
+    "name": "Fresa del Huerto",
+    "description": "Fresas maduras de temporada con un toque de limón.",
+    "category": "artesanal",
+    "imagePlaceholder": "#f9a8d4",
+    "price": 2.6,
+    "container": "Barquillo Dulce"
   },
   {
-    "id": "triple-choc-chunk",
-    "name": "Triple Choc Chunk",
-    "description": "Milk chocolate base loaded with white, dark, and milk chocolate chunks in every scoop.",
-    "category": "chocolate",
-    "imagePlaceholder": "#92400e"
+    "id": "paleta-maracuya",
+    "name": "Paleta Frutal Maracuyá",
+    "description": "Pulpa de maracuyá natural, sin colorantes, en paleta artesanal.",
+    "category": "paleta",
+    "imagePlaceholder": "#fcd34d",
+    "price": 3.0,
+    "container": "Paleta Artesanal"
   },
   {
-    "id": "mocha-ribbon",
-    "name": "Mocha Ribbon",
-    "description": "Espresso-infused chocolate ice cream with a dark fudge ribbon running through the centre.",
-    "category": "chocolate",
-    "imagePlaceholder": "#451a03"
+    "id": "paleta-mango-chile",
+    "name": "Paleta Mango con Chile",
+    "description": "Mango Alphonso con un punto de chile para un final dulce y picante.",
+    "category": "paleta",
+    "imagePlaceholder": "#fb923c",
+    "price": 3.0,
+    "container": "Paleta Artesanal"
   },
   {
-    "id": "vanilla-dream",
-    "name": "Vanilla Dream",
-    "description": "Madagascar Bourbon vanilla bean, slow-churned to a silky, floral classic.",
-    "category": "classic",
-    "imagePlaceholder": "#fef3c7"
+    "id": "batido-pistacho-belga",
+    "name": "Batido Especial Pistacho Belga",
+    "description": "Milkshake de pistacho belga con nata montada extra.",
+    "category": "milkshake",
+    "imagePlaceholder": "#86efac",
+    "price": 6.5,
+    "container": "Vaso Compostable 500ml"
   },
   {
-    "id": "salted-caramel",
-    "name": "Salted Caramel",
-    "description": "Slow-cooked caramel with flakes of Maldon sea salt — the crowd's perennial favourite.",
-    "category": "classic",
-    "imagePlaceholder": "#d97706"
+    "id": "batido-oreo",
+    "name": "Milkshake de Galleta y Crema",
+    "description": "Vainilla de Madagascar con trozos de galleta de chocolate.",
+    "category": "milkshake",
+    "imagePlaceholder": "#a8a29e",
+    "price": 6.0,
+    "container": "Vaso Compostable 500ml"
   },
   {
-    "id": "mint-choc-chip",
-    "name": "Mint Choc Chip",
-    "description": "Cool spearmint cream scattered with fine dark chocolate chips for that satisfying crunch.",
-    "category": "classic",
-    "imagePlaceholder": "#6ee7b7"
+    "id": "limonada-menta",
+    "name": "Limonada de Menta",
+    "description": "Limonada fresca con hojas de menta y hielo picado.",
+    "category": "bebida",
+    "imagePlaceholder": "#6ee7b7",
+    "price": 2.5,
+    "container": "Vaso Compostable 400ml"
+  },
+  {
+    "id": "cafe-helado",
+    "name": "Café Helado",
+    "description": "Espresso doble sobre hielo con un chorrito de leche.",
+    "category": "bebida",
+    "imagePlaceholder": "#92400e",
+    "price": 2.8,
+    "container": "Vaso Compostable 400ml"
   }
 ]

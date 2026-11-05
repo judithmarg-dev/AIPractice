@@ -1,24 +1,25 @@
 # Tech Stack
 
-## Current (front-end only)
+## Current
 
 | Layer | Choice | Notes |
 |-------|--------|-------|
-| Framework | Vite + React | Fast dev loop, no SSR needed while back-end is absent |
+| Framework | Vite + React | Fast dev loop; no SSR needed |
 | Language | TypeScript | End-to-end type safety from day one |
 | Styling | Tailwind CSS | Utility-first; aligns with Mary's "popular stack" requirement |
-| State | React Context / hooks | Sufficient for front-end-only phases |
+| State | Redux Toolkit | Global state for catalog, bookings, inventory, and auth |
 
-## Planned (when back-end is added)
+## Removed (2026-10-07)
 
-| Layer | Choice | Notes |
-|-------|--------|-------|
-| Full-stack | Next.js 14 (App Router, RSC) | Migration path from Vite is straightforward |
-| API | Next.js Server Actions / API routes | Keeps TypeScript throughout |
-| Database | PostgreSQL via Prisma | Reliable, relational; good fit for inventory & bookings |
-| Auth | NextAuth.js | Session-based, integrates cleanly with Next.js |
-| Deploy | Vercel | Zero-config for Next.js; preview URLs per branch |
+The following layers were added but then removed because Supabase + Next.js caused app failures. See decision log in `roadmap.md`.
+
+| Layer | Was | Reason removed |
+|-------|-----|----------------|
+| Full-stack | Next.js 14 (App Router) | App failures; added complexity without sufficient benefit at current scale |
+| Database | Supabase (hosted Postgres) | App failures; replaced by Redux Toolkit in-memory store |
+| Auth | Supabase Auth | Depended on Supabase; replaced by mock auth Redux slice |
+| Deploy | Vercel | Tied to Next.js; no longer applicable |
 
 ## Guiding principle
 
-Ship the front-end independently. Back-end layers are additive — no front-end rewrites required when each layer is introduced.
+Ship the front-end independently. State is managed in-memory via Redux Toolkit. Backend layers remain deferred until the Redux-based front-end is stable and the team selects a new backend strategy.

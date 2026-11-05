@@ -22,7 +22,7 @@
 7. `FlavorCatalogPage` (or equivalent page file) — composes the above components
 8. Wire category filter: filter the flavor list by selected category (show all when none selected)
 9. Wire size picker: track selected size in local state (no downstream effect yet)
-10. Responsive layout: Frappe UI grid/layout primitives — single column on mobile, multi-column on desktop
+10. Mobile-first layout: base grid is 2 columns on phones; tablet (≥ 768 px) and desktop (≥ 1024 px) add columns and the side panel via `min-width` queries
 
 ## Group 4 — Integration & polish
 

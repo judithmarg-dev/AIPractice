@@ -1,24 +1,39 @@
-# Logs
-logs
+# ── Dependencies ─────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Next.js build output ──────────────────────────────────────────────────────
+# Generated on every `next dev` / `next build` — never commit.
+.next/
+out/
+
+# ── Environment variables ─────────────────────────────────────────────────────
+# .env.local holds secrets (Supabase keys). Keep .env.local.example committed.
+.env
+.env.local
+.env.*.local
+
+# ── TypeScript / build artefacts ─────────────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# ── Editor & OS ───────────────────────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+dist/
+dist-ssr/

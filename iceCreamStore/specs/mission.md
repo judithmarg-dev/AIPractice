@@ -1,9 +1,18 @@
 # Mission
 
-IceCreamStore serves two equally important audiences.
+IceCreamStore is the working tool of the **ice cream shop owner** (propietario). From the counter,
+on a tablet or phone, the owner takes orders from a Starbucks-style menu, builds artisanal ice
+creams scoop by scoop, keeps a queue of orders waiting to be charged, restocks what runs out and
+understands the business in a visual dashboard. Counter staff use the same account and tools.
+Customers do not use the app.
 
-**Clients** — people who want to order ice creams customized by size, shape, and flavor. They expect a smooth, intuitive ordering experience that lets them mix and match options without friction.
+Every screen is designed mobile-first, then scales to the counter tablet and the owner's desktop.
+The whole app is in Spanish.
 
-**Store Owners** — operators who need to know which ice creams are most in demand, track order trends, and access analytics that support stocking and business decisions.
+Two goals matter equally:
 
-Every product decision balances these two goals: a feature that delights clients but obscures owner visibility, or vice versa, is incomplete.
+- **Fast, frictionless counter work.** Taking, holding, editing and charging an order takes a few
+  taps; stock is discounted as orders are queued or charged, and sold-out items cannot be added.
+- **Clear business visibility.** By day, week or month the owner sees income (without IVA),
+  profit, orders, average ticket, top products, the star flavor, peak hours, service mix and
+  restocking signals, compared with the previous period, and can export them to PDF and CSV.
