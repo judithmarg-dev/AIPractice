@@ -31,7 +31,7 @@ Sigue los pasos en orden.
 | `orders` | Pedidos (líneas en `jsonb`) | Staff | Staff |
 | `bookings` | Reservas de mesa | Staff | Cualquiera puede **crear**; el staff gestiona |
 
-> **¿Ya habías ejecutado el script antes?** Vuelve a ejecutarlo: agrega la columna `products.subgroup_id` (la pestaña "Opción 1 / Opción 2" de Artesanales). Sin ella, guardar productos falla.
+> **¿Ya habías ejecutado el script antes?** Vuelve a ejecutarlo. Agrega `products.sprite` (el dibujo de cada sabor artesanal), `store_settings.kilo_price_cents` y `half_kilo_price_cents` (precio de 1 kilo y ½ kilo), y elimina `products.subgroup_id`: los sabores de Artesanales son un solo catálogo que sirve para **Porciones** y **Por peso**, así que ya no se asignan a una pestaña. Sin estas columnas, guardar productos o ajustes falla.
 >
 > El script es idempotente: se puede ejecutar de nuevo sin perder datos. Las reglas de acceso están implementadas con **Row-Level Security (RLS)**.
 

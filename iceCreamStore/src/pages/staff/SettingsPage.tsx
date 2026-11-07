@@ -40,7 +40,9 @@ export default function SettingsPage() {
     queueRedMinutes: String(settings.queueRedMinutes),
   }))
   const [surcharge, setSurcharge] = useState(centsToInput(settings.deliverySurchargeCents))
-  const [errors, setErrors] = useState<Partial<Record<Field | 'surcharge', string>>>({})
+  const [kiloPrice, setKiloPrice] = useState(centsToInput(settings.kiloPriceCents))
+  const [halfKiloPrice, setHalfKiloPrice] = useState(centsToInput(settings.halfKiloPriceCents))
+  const [errors, setErrors] = useState<Partial<Record<Field | 'surcharge' | 'kilo' | 'halfKilo', string>>>({})
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -54,6 +56,12 @@ export default function SettingsPage() {
     const money = parseMoneyInput(surcharge)
     if (money.ok) patch.deliverySurchargeCents = money.cents
     else next.surcharge = money.error
+    const kilo = parseMoneyInput(kiloPrice)
+    if (kilo.ok) patch.kiloPriceCents = kilo.cents
+    else next.kilo = kilo.error
+    const half = parseMoneyInput(halfKiloPrice)
+    if (half.ok) patch.halfKiloPriceCents = half.cents
+    else next.halfKilo = half.error
     if (!next.queueRedMinutes && !next.queueAmberMinutes && patch.queueRedMinutes! <= patch.queueAmberMinutes!) {
       next.queueRedMinutes = 'Debe ser mayor que el tiempo de la alerta ámbar.'
     }
@@ -104,6 +112,8 @@ export default function SettingsPage() {
       queueRedMinutes: String(seed.settings.queueRedMinutes),
     })
     setSurcharge(centsToInput(seed.settings.deliverySurchargeCents))
+    setKiloPrice(centsToInput(seed.settings.kiloPriceCents))
+    setHalfKiloPrice(centsToInput(seed.settings.halfKiloPriceCents))
     dispatch(pushToast({ message: 'La tienda volvió a los datos iniciales' }))
   }
 
@@ -125,6 +135,22 @@ export default function SettingsPage() {
             onChange={setSurcharge}
             error={errors.surcharge}
             hint="Monto fijo por pedido de delivery."
+            required
+          />
+          <MoneyField
+            label="Precio de 1 kilo (artesanales)"
+            value={kiloPrice}
+            onChange={setKiloPrice}
+            error={errors.kilo}
+            hint="Precio fijo, sin importar cuántos sabores lleve."
+            required
+          />
+          <MoneyField
+            label="Precio de ½ kilo (artesanales)"
+            value={halfKiloPrice}
+            onChange={setHalfKiloPrice}
+            error={errors.halfKilo}
+            hint="Precio fijo, sin importar cuántos sabores lleve."
             required
           />
           {INT_FIELDS.map((f) => (

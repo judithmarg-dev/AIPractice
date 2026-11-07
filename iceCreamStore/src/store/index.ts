@@ -4,6 +4,7 @@ import inventoryReducer from './slices/inventorySlice'
 import categoriesReducer from './slices/categoriesSlice'
 import optionsReducer from './slices/optionsSlice'
 import bookingsReducer from './slices/bookingsSlice'
+import packReducer from './slices/packSlice'
 import orderReducer, { initialOrderState } from './slices/orderSlice'
 import settingsReducer from './slices/settingsSlice'
 import uiReducer, { setStorageError } from './slices/uiSlice'
@@ -17,6 +18,7 @@ const appReducer = combineReducers({
   options: optionsReducer,
   bookings: bookingsReducer,
   order: orderReducer,
+  pack: packReducer,
   settings: settingsReducer,
   ui: uiReducer,
 })

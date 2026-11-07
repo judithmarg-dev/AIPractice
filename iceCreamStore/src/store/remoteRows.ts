@@ -1,4 +1,5 @@
 // Maps the app's camelCase models to the snake_case rows of supabase/migrations/001_initial.sql.
+import { DEFAULT_SETTINGS } from '@/store/seed'
 import type { Booking } from '@/types/booking'
 import type { Category, IconId, OptionItem, Order, Product, Settings } from '@/types/models'
 
@@ -68,7 +69,7 @@ export const productToRow = (p: Product): Row => ({
   image: p.image ?? null,
   color: p.color,
   default_container_id: p.defaultContainerId ?? null,
-  subgroup_id: p.subgroupId ?? null,
+  sprite: p.sprite ?? null,
   archived: p.archived,
   created_at: p.createdAt,
 })
@@ -84,7 +85,7 @@ export const productFromRow = (r: Row): Product => ({
   image: opt(r.image as string | null),
   color: r.color as string,
   defaultContainerId: opt(r.default_container_id as string | null),
-  subgroupId: opt(r.subgroup_id as string | null),
+  sprite: opt(r.sprite as string | null),
   archived: r.archived as boolean,
   createdAt: iso(r.created_at)!,
 })
@@ -148,6 +149,8 @@ export const settingsToRow = (s: Settings, extras: SettingsRowExtras): Row => ({
   delivery_surcharge_cents: s.deliverySurchargeCents,
   low_stock_threshold: s.lowStockThreshold,
   max_scoops: s.maxScoops,
+  kilo_price_cents: s.kiloPriceCents,
+  half_kilo_price_cents: s.halfKiloPriceCents,
   queue_amber_minutes: s.queueAmberMinutes,
   queue_red_minutes: s.queueRedMinutes,
   next_order_number: extras.nextNumber,
@@ -159,6 +162,8 @@ export const settingsFromRow = (r: Row): Settings & SettingsRowExtras => ({
   deliverySurchargeCents: r.delivery_surcharge_cents as number,
   lowStockThreshold: r.low_stock_threshold as number,
   maxScoops: r.max_scoops as number,
+  kiloPriceCents: (r.kilo_price_cents as number | null) ?? DEFAULT_SETTINGS.kiloPriceCents,
+  halfKiloPriceCents: (r.half_kilo_price_cents as number | null) ?? DEFAULT_SETTINGS.halfKiloPriceCents,
   queueAmberMinutes: r.queue_amber_minutes as number,
   queueRedMinutes: r.queue_red_minutes as number,
   nextNumber: r.next_order_number as number,

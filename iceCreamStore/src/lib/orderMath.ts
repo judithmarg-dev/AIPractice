@@ -5,9 +5,10 @@ import type { LineBuild, OrderLine, ServiceMode, Settings, Snapshot } from '@/ty
 
 const sum = (items: Snapshot[]) => items.reduce((s, i) => s + i.priceCents, 0)
 
-/** §8.1 — every scoop at its own price + container + extras + toppings. */
+/** §8.1 — every scoop at its own price + container + extras + toppings (by weight: the pack's fixed price). */
 export function buildUnitPrice(build: LineBuild): number {
-  return sum(build.scoops) + (build.container?.priceCents ?? 0) + sum(build.extras) + sum(build.toppings)
+  const flavors = build.pack ? build.pack.priceCents : sum(build.scoops)
+  return flavors + (build.container?.priceCents ?? 0) + sum(build.extras) + sum(build.toppings)
 }
 
 export function lineSubtotal(line: Pick<OrderLine, 'unitPriceCents' | 'qty'>): number {
@@ -45,6 +46,8 @@ export function lineCost(line: OrderLine): { cents: number; incomplete: boolean 
   if (!line.build) {
     return { cents: (line.unitCostCents ?? 0) * line.qty, incomplete: line.unitCostCents === undefined }
   }
+  // Flavor costs are per scoop; a kilo has no configured cost, so its profit is flagged as incomplete.
+  if (line.build.pack) return { cents: 0, incomplete: true }
   const parts = [...line.build.scoops, ...line.build.extras, ...line.build.toppings]
   if (line.build.container) parts.push(line.build.container)
   let unit = 0
@@ -115,10 +118,11 @@ export function shortageMessage(shortages: Shortage[]): string {
 /** Title and detail line shown for an order line (RF-4.9). */
 export function describeLine(line: OrderLine): { title: string; detail: string } {
   if (!line.build) return { title: line.productName, detail: line.note ?? '' }
-  const { scoops, container, extras, toppings } = line.build
+  const { scoops, container, extras, toppings, pack } = line.build
   const parts = [scoops.map((s) => s.name).join(' + ')]
   if (container) parts.push(container.name)
   for (const o of [...extras, ...toppings]) parts.push(o.name)
+  if (pack) return { title: `${T.buildLineTitle} · ${pack.label}`, detail: `${plural(scoops.length, 'sabor', 'sabores')}: ${parts[0]}` }
   return {
     title: `${T.buildLineTitle} · ${plural(scoops.length, 'bola', 'bolas')}`,
     detail: parts.join(' • '),
@@ -140,6 +144,8 @@ export function makeBuildLine(params: {
   extras: Snapshot[]
   toppings: Snapshot[]
   qty: number
+  presentation?: LineBuild['presentation']
+  pack?: LineBuild['pack']
 }): OrderLine {
   const build: LineBuild = {
     scoops: params.scoops,
@@ -147,6 +153,8 @@ export function makeBuildLine(params: {
     toppings: params.toppings,
   }
   if (params.container) build.container = params.container
+  if (params.presentation) build.presentation = params.presentation
+  if (params.pack) build.pack = params.pack
   const unitCost = lineCost({ lineId: '', productId: '', productName: '', categoryId: '', qty: 1, unitPriceCents: 0, build })
   return {
     lineId: params.lineId,
@@ -155,7 +163,7 @@ export function makeBuildLine(params: {
     categoryId: params.categoryId,
     qty: params.qty,
     unitPriceCents: buildUnitPrice(build),
-    unitCostCents: unitCost.cents,
+    unitCostCents: unitCost.incomplete && params.pack ? undefined : unitCost.cents,
     build,
   }
 }

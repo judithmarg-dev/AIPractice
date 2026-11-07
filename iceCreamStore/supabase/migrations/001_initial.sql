@@ -42,13 +42,23 @@ create table if not exists products (
   image                text,          -- data URL comprimida (src/lib/image.ts)
   color                text not null default '#9ca3af',
   default_container_id text,          -- id de una opción "envase"; sin FK: al borrar la opción se limpia desde la app
-  subgroup_id          text,          -- pestaña dentro de la categoría (Artesanales: opcion-1 / opcion-2)
+  sprite               text,          -- dibujo del sabor artesanal: celda de las hojas de sprites (ej. 's1-7'); ver src/lib/scoopSprites.ts
   archived             boolean not null default false,
   created_at           timestamptz not null default now()
 );
 
 -- Columnas agregadas después de la primera versión del script (para bases ya creadas).
-alter table products add column if not exists subgroup_id text;
+-- Los sabores artesanales son un solo catálogo: sirven igual para "Porciones" y "Por peso",
+-- por eso desaparece la asignación de cada producto a una pestaña (subgroup_id).
+alter table products add column if not exists sprite text;
+alter table products drop column if exists subgroup_id;
+update products set sprite = case id
+  when 'fresa-del-huerto'    then 's1-0'
+  when 'chocolate-intenso'   then 's1-2'
+  when 'pistacho-siciliano'  then 's1-7'
+  when 'dulce-de-leche'      then 's2-1'
+end
+where sprite is null and id in ('fresa-del-huerto', 'chocolate-intenso', 'pistacho-siciliano', 'dulce-de-leche');
 
 create table if not exists orders (
   id              text primary key,
@@ -92,11 +102,16 @@ create table if not exists store_settings (
   delivery_surcharge_cents integer not null default 30,
   low_stock_threshold      integer not null default 5,
   max_scoops               integer not null default 3,
+  kilo_price_cents         integer not null default 1800 check (kilo_price_cents >= 0),       -- Artesanales por peso: 1 kilo
+  half_kilo_price_cents    integer not null default 1000 check (half_kilo_price_cents >= 0),  -- Artesanales por peso: ½ kilo
   queue_amber_minutes      integer not null default 15,
   queue_red_minutes        integer not null default 30,
   next_order_number        integer not null default 1044,
   demo_stock_backup        jsonb
 );
+
+alter table store_settings add column if not exists kilo_price_cents integer not null default 1800;
+alter table store_settings add column if not exists half_kilo_price_cents integer not null default 1000;
 
 -- ── Row-Level Security ───────────────────────────────────────────────────────
 -- anon          = clientes sin sesión: ven el menú y pueden crear reservas.

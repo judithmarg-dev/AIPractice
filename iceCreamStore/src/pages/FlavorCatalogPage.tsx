@@ -1,15 +1,17 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
-import { useAppSelector } from '@/store/hooks'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectActiveProducts } from '@/store/slices/inventorySlice'
 import { selectActiveCategories } from '@/store/slices/categoriesSlice'
 import { selectDraft, selectDraftNumber, selectEditingId } from '@/store/slices/orderSlice'
-import { selectDraftTotals } from '@/store/selectors'
+import { selectDraftTotals, selectAvailableStock } from '@/store/selectors'
+import { clearPack, loadPack, selectPack, selectPackKind, setPackMode, setPackWeight, toggleFlavor } from '@/store/slices/packSlice'
+import { removeLine } from '@/store/slices/orderSlice'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatMoney } from '@/lib/money'
 import { plural } from '@/lib/texts'
 import type { OrderLine } from '@/types/models'
-import { subgroupOf, subgroupsOf } from '@/lib/subgroups'
+import { PACK_RULES, WEIGHTS, limitText, presentationsOf, type Weight } from '@/lib/presentations'
 import { MenuTabs } from '@/components/MenuTabs'
 import { FlavorTile } from '@/components/FlavorTile'
 import { FlavorDetailPanel } from '@/components/FlavorDetailPanel'
@@ -21,6 +23,7 @@ interface BuildTarget {
 }
 
 export function FlavorCatalogPage() {
+  const dispatch = useAppDispatch()
   const location = useLocation()
   const [params, setParams] = useSearchParams()
   const products = useAppSelector(selectActiveProducts)
@@ -29,6 +32,9 @@ export function FlavorCatalogPage() {
   const number = useAppSelector(selectDraftNumber)
   const editing = useAppSelector(selectEditingId) !== null
   const totals = useAppSelector(selectDraftTotals)
+  const pack = useAppSelector(selectPack)
+  const packKind = useAppSelector(selectPackKind)
+  const available = useAppSelector((s) => selectAvailableStock(s, null))
   const isDesktop = useMediaQuery('(min-width: 1024px)')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [orderOpen, setOrderOpen] = useState(() => Boolean((location.state as { openOrder?: boolean } | null)?.openOrder))
@@ -45,18 +51,28 @@ export function FlavorCatalogPage() {
 
   // Nothing is shown until a category tab is chosen; the choice lives in the URL (?cat=&sub=).
   const active = sections.find((s) => s.category.id === params.get('cat')) ?? null
-  const subgroups = active ? subgroupsOf(active.category.id) : []
-  const activeSub = subgroups.find((g) => g.id === params.get('sub')) ?? null
-  // Categories with sub-tabs (Artesanales) wait for one to be chosen too.
-  const visible = !active ? null : subgroups.length === 0 ? active.items : activeSub ? active.items.filter((p) => subgroupOf(p) === activeSub.id) : null
+  const presentations = active ? presentationsOf(active.category.id) : []
+  const activeSub = presentations.find((g) => g.id === params.get('sub')) ?? null
+  // Categories with presentations (Artesanales) wait for one to be chosen too. Both presentations
+  // list the same flavors: one catalog, so nothing is duplicated per option.
+  const visible = !active ? null : presentations.length === 0 ? active.items : activeSub ? active.items : null
+  const packMode = activeSub ? (activeSub.id === 'peso' ? 'peso' : 'porcion') : null
+  const rule = PACK_RULES[packKind]
+
+  // The pack being assembled follows the tab: switching Porciones ↔ Por peso starts over.
+  useEffect(() => {
+    if (packMode) dispatch(setPackMode(packMode))
+  }, [dispatch, packMode])
 
   const selectTab = (cat: string, sub?: string) => {
     setSelectedId(null)
+    if (cat !== active?.category.id) dispatch(clearPack())
     setParams(sub ? { cat, sub } : { cat }, { replace: true })
   }
 
   const selected = products.find((p) => p.id === selectedId) ?? null
-  const hasLines = draft.lines.length > 0 || editing
+  const packCount = pack.flavorIds.length
+  const hasLines = draft.lines.length > 0 || editing || packCount > 0
 
   // Desktop keeps the order in the side column; smaller screens open it on demand.
   const showPanel = selected !== null || (hasLines && (isDesktop || orderOpen))
@@ -67,9 +83,23 @@ export function FlavorCatalogPage() {
     setOrderOpen(false)
   }, [])
 
-  const handleEditLine = useCallback((line: OrderLine) => {
-    if (line.build) setBuild({ baseId: line.build.scoops[0].id, line })
-  }, [])
+  const handleEditLine = useCallback(
+    (line: OrderLine) => {
+      const b = line.build
+      if (!b) return
+      if (b.presentation) {
+        // Cone / by-weight lines are edited in the pack builder: take the line back into it.
+        const mode = b.presentation
+        dispatch(loadPack({ mode, weight: b.pack?.kind ?? 'kilo', flavorIds: b.scoops.map((s) => s.id) }))
+        dispatch(removeLine(line.lineId))
+        setSelectedId(null)
+        setParams({ cat: line.categoryId, sub: mode === 'peso' ? 'peso' : 'porciones' }, { replace: true })
+        return
+      }
+      setBuild({ baseId: b.scoops[0].id, line })
+    },
+    [dispatch, setParams]
+  )
 
   return (
     <main className={`menu${showPanel ? ' menu--open' : ''}`}>
@@ -104,16 +134,12 @@ export function FlavorCatalogPage() {
             aria-labelledby={`tab-${active.category.id}`}
             className="menu__section"
           >
-            {subgroups.length > 0 && (
+            {presentations.length > 0 && (
               <MenuTabs
                 variant="option"
-                label={`Opciones de ${active.category.name}`}
+                label={`Presentaciones de ${active.category.name}`}
                 panelId="menu-option-panel"
-                tabs={subgroups.map((g) => ({
-                  id: g.id,
-                  label: g.name,
-                  count: active.items.filter((p) => subgroupOf(p) === g.id).length,
-                }))}
+                tabs={presentations.map((g) => ({ id: g.id, label: g.name }))}
                 activeId={activeSub?.id ?? null}
                 onChange={(id) => selectTab(active.category.id, id)}
               />
@@ -127,7 +153,31 @@ export function FlavorCatalogPage() {
                   ? { id: 'menu-option-panel', role: 'tabpanel', 'aria-labelledby': `tab-${activeSub.id}` }
                   : {})}
               >
-                {!showPanel && !editing && visible.length > 0 && (
+                {packMode === 'peso' && (
+                  <div className="menu-tabs menu-tabs--option menu__weights" role="radiogroup" aria-label="Peso">
+                    {WEIGHTS.map((w: Weight) => (
+                      <button
+                        key={w}
+                        type="button"
+                        role="radio"
+                        aria-checked={pack.weight === w}
+                        className={`menu-tabs__tab${pack.weight === w ? ' menu-tabs__tab--active' : ''}`}
+                        onClick={() => dispatch(setPackWeight(w))}
+                      >
+                        {PACK_RULES[w].label}
+                        <span className="menu-tabs__count">{limitText(PACK_RULES[w]).replace(' sabores', '')}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {packMode && visible.length > 0 && (
+                  <p className="menu__hint">
+                    {packMode === 'porcion'
+                      ? `Toca los sabores de tu porción: ${limitText(rule)}. Se apilan sobre el barquillo.`
+                      : `Elige ${limitText(rule)} para ${rule.label.toLowerCase()}.`}
+                  </p>
+                )}
+                {!packMode && !showPanel && !editing && visible.length > 0 && (
                   <p className="menu__hint">
                     {active.category.buildable
                       ? 'Toca un sabor para armar el helado bola por bola.'
@@ -148,8 +198,22 @@ export function FlavorCatalogPage() {
                         buildable={active.category.buildable}
                         index={index}
                         isSelected={selectedId === product.id}
+                        toggle={
+                          packMode
+                            ? {
+                                checked: pack.flavorIds.includes(product.id),
+                                showCheck: packMode === 'peso',
+                                disabled:
+                                  !pack.flavorIds.includes(product.id) &&
+                                  (pack.flavorIds.length >= rule.max || (available[product.id] ?? 0) < 1),
+                              }
+                            : undefined
+                        }
                         onClick={() => {
-                          if (active.category.buildable) {
+                          if (packMode) {
+                            setSelectedId(null)
+                            dispatch(toggleFlavor(product.id))
+                          } else if (active.category.buildable) {
                             setSelectedId(null)
                             setBuild({ baseId: product.id })
                           } else {
@@ -178,7 +242,9 @@ export function FlavorCatalogPage() {
       {showOrderBar && (
         <button type="button" className="order-bar" onClick={() => setOrderOpen(true)}>
           <span className="order-bar__label">
-            {editing ? 'Editando ' : ''}Orden #{number} · {plural(totals.itemCount, 'artículo', 'artículos')}
+            {packCount > 0 && draft.lines.length === 0 && !editing
+              ? `Tu selección · ${plural(packCount, 'sabor', 'sabores')}`
+              : `${editing ? 'Editando ' : ''}Orden #${number} · ${plural(totals.itemCount, 'artículo', 'artículos')}`}
           </span>
           <span className="order-bar__total">{formatMoney(totals.totalCents)} · Ver orden</span>
         </button>

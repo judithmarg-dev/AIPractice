@@ -565,9 +565,22 @@
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 
-.flavor-tile__image {
+.flavor-tile__media {
+  position: relative;
   width: 96px;
   height: 96px;
+}
+
+@media (min-width: 1024px) {
+  .flavor-tile__media {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+.flavor-tile__image {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   overflow: hidden;
   display: grid;
@@ -597,13 +610,6 @@
     color-mix(in srgb, var(--flavor-color) 55%, #16171d) 0%,
     color-mix(in srgb, var(--flavor-color) 85%, #16171d) 100%
   );
-}
-
-@media (min-width: 1024px) {
-  .flavor-tile__image {
-    width: 120px;
-    height: 120px;
-  }
 }
 
 .flavor-tile:hover .flavor-tile__image {
@@ -1467,4 +1473,296 @@
   padding: 0.8rem 0.5rem;
   font-size: 0.82rem;
   white-space: nowrap;
+}
+
+/* ── Artisan flavors: sprite, check, pack builder ─────── */
+.flavor-tile .flavor-tile__image--sprite,
+:root:not([data-theme="light"]) .flavor-tile .flavor-tile__image--sprite,
+:root[data-theme="dark"] .flavor-tile .flavor-tile__image--sprite {
+  background: color-mix(in srgb, var(--flavor-color) 22%, #fff);
+}
+
+.flavor-tile__sprite {
+  width: 92%;
+  height: auto;
+  margin-top: 4%;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.flavor-tile:hover .flavor-tile__sprite {
+  transform: translateY(-3px) scale(1.04);
+}
+
+.flavor-tile__image img.flavor-tile__sprite {
+  object-fit: contain;
+}
+
+/* Por peso: check in the top-right corner of each chosen scoop. */
+.flavor-tile__check {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 3px var(--bg), 0 4px 10px -2px rgba(0, 0, 0, 0.3);
+  animation: check-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.flavor-tile--disabled:not(.flavor-tile--selected) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.menu__weights {
+  margin-bottom: 1rem;
+}
+
+/* The pack being assembled, at the top of the order. */
+.pack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: var(--surface-tint);
+  border: 1px solid var(--border);
+}
+
+.pack__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pack__title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-h);
+}
+
+.pack__count {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pack__stage {
+  --cone-w: 130px;
+  --cone-h: 150px;
+  --scoop-w: 164px;
+  --step: 70px;
+  position: relative;
+  width: 100%;
+  height: calc(var(--cone-h) + var(--scoop-w) * 0.92 + (var(--count) - 1) * var(--step) - 6px);
+  transition: height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pack__cone {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: var(--cone-w);
+  height: var(--cone-h);
+  transform: translateX(-50%);
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.18));
+}
+
+.pack__scoop {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--cone-h) - 24px + var(--n) * var(--step));
+  z-index: calc(var(--n) + 1);
+  display: flex;
+  justify-content: center;
+  transform-origin: 50% 100%;
+  transition: bottom 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: scoop-drop 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
+}
+
+.pack__scoop-img {
+  width: var(--scoop-w);
+  height: auto;
+  filter: drop-shadow(0 5px 6px rgba(0, 0, 0, 0.2));
+}
+
+.pack__scoop-fallback {
+  display: block;
+  width: calc(var(--scoop-w) * 0.8);
+  height: calc(var(--scoop-w) * 0.7);
+  border-radius: 50% 50% 38% 38%;
+}
+
+@keyframes scoop-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-150px) scale(0.78, 1.18);
+  }
+  35% {
+    opacity: 1;
+  }
+  58% {
+    transform: translateY(7px) scale(1.1, 0.86);
+  }
+  76% {
+    transform: translateY(-4px) scale(0.97, 1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Por peso: no animation, just the picked scoops. */
+.pack__tub {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pack__tub-img {
+  width: 72px;
+  height: auto;
+}
+
+.pack__tub-item .pack__scoop-fallback {
+  width: 56px;
+  height: 48px;
+}
+
+.pack__flavors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pack__flavor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-h);
+}
+
+.pack__flavor-price {
+  color: var(--text);
+}
+
+.pack__flavor-remove {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.pack__flavor-remove:hover {
+  background: var(--surface-tint);
+  color: var(--text-h);
+}
+
+.pack__flavor-remove:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.pack__hint,
+.pack__error {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.pack__error {
+  color: var(--danger, #b42318);
+}
+
+.pack__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pack__actions .order__btn--primary {
+  justify-content: space-between;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pack__scoop,
+  .pack__stage,
+  .flavor-tile__check,
+  .flavor-tile__sprite {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Product form: sprite picker. */
+.sprite-picker {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sprite-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 0.5rem;
+}
+
+.sprite-picker__item {
+  display: grid;
+  place-items: center;
+  padding: 0.25rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.sprite-picker__item img {
+  width: 100%;
+  height: auto;
+}
+
+.sprite-picker__item--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.sprite-picker__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

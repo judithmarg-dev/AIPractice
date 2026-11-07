@@ -6,7 +6,8 @@
     "category": "artesanal",
     "imagePlaceholder": "#a3e635",
     "price": 2.6,
-    "container": "Barquillo Dulce"
+    "container": "Barquillo Dulce",
+    "sprite": "s1-7"
   },
   {
     "id": "dulce-de-leche",
@@ -15,7 +16,8 @@
     "category": "artesanal",
     "imagePlaceholder": "#d97706",
     "price": 2.6,
-    "container": "Barquillo Dulce"
+    "container": "Barquillo Dulce",
+    "sprite": "s2-1"
   },
   {
     "id": "chocolate-intenso",
@@ -24,7 +26,8 @@
     "category": "artesanal",
     "imagePlaceholder": "#78350f",
     "price": 2.6,
-    "container": "Vaso de Cartón"
+    "container": "Vaso de Cartón",
+    "sprite": "s1-2"
   },
   {
     "id": "fresa-del-huerto",
@@ -33,7 +36,168 @@
     "category": "artesanal",
     "imagePlaceholder": "#f9a8d4",
     "price": 2.6,
-    "container": "Barquillo Dulce"
+    "container": "Barquillo Dulce",
+    "sprite": "s1-0"
+  },
+  {
+    "id": "copoazu",
+    "name": "Copoazú",
+    "description": "Copoazú amazónico, ácido y aromático, con cuerpo cremoso.",
+    "category": "artesanal",
+    "imagePlaceholder": "#f5deb3",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s1-1"
+  },
+  {
+    "id": "vainilla-bourbon",
+    "name": "Vainilla Bourbon",
+    "description": "Vainilla de Madagascar con semillas reales, suave y persistente.",
+    "category": "artesanal",
+    "imagePlaceholder": "#fff1c1",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s1-3"
+  },
+  {
+    "id": "chirimoya",
+    "name": "Chirimoya",
+    "description": "Chirimoya madura de valle, dulce y perfumada.",
+    "category": "artesanal",
+    "imagePlaceholder": "#d8c8ee",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s1-4"
+  },
+  {
+    "id": "mango-tommy",
+    "name": "Mango Tommy",
+    "description": "Mango maduro a punto, sin agua añadida.",
+    "category": "artesanal",
+    "imagePlaceholder": "#facc15",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s1-5"
+  },
+  {
+    "id": "maracuya-crema",
+    "name": "Maracuyá",
+    "description": "Maracuyá con semillas crujientes, entre ácido y dulce.",
+    "category": "artesanal",
+    "imagePlaceholder": "#c2661a",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s1-6"
+  },
+  {
+    "id": "menta-chips",
+    "name": "Menta con Chispas",
+    "description": "Menta fresca con chispas de chocolate amargo.",
+    "category": "artesanal",
+    "imagePlaceholder": "#a5e8e0",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s1-8"
+  },
+  {
+    "id": "coco-rallado",
+    "name": "Coco",
+    "description": "Coco rallado y leche de coco, ligero y tropical.",
+    "category": "artesanal",
+    "imagePlaceholder": "#f8fafc",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s1-9"
+  },
+  {
+    "id": "lima-verde",
+    "name": "Lima",
+    "description": "Lima verde recién exprimida, refrescante.",
+    "category": "artesanal",
+    "imagePlaceholder": "#b7e68f",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-0"
+  },
+  {
+    "id": "galleta-oscura",
+    "name": "Galleta Oscura",
+    "description": "Chocolate con trozos de galleta y crema.",
+    "category": "artesanal",
+    "imagePlaceholder": "#4a2e24",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-2"
+  },
+  {
+    "id": "naranja-sanguina",
+    "name": "Naranja",
+    "description": "Naranja de temporada con su ralladura.",
+    "category": "artesanal",
+    "imagePlaceholder": "#f08a24",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-3"
+  },
+  {
+    "id": "azul-hielo",
+    "name": "Azul Hielo",
+    "description": "Sabor frutal helado, divertido y brillante.",
+    "category": "artesanal",
+    "imagePlaceholder": "#3cc7d8",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-4"
+  },
+  {
+    "id": "turquesa",
+    "name": "Turquesa",
+    "description": "Menta y frutas tropicales con un final fresco.",
+    "category": "artesanal",
+    "imagePlaceholder": "#00d9e8",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-5"
+  },
+  {
+    "id": "limon-siciliano",
+    "name": "Limón",
+    "description": "Limón amarillo, ácido y limpio.",
+    "category": "artesanal",
+    "imagePlaceholder": "#fde047",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-6"
+  },
+  {
+    "id": "uva-moscatel",
+    "name": "Uva",
+    "description": "Uva moscatel con un toque de violeta.",
+    "category": "artesanal",
+    "imagePlaceholder": "#c9a0f0",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-7"
+  },
+  {
+    "id": "stracciatella",
+    "name": "Stracciatella",
+    "description": "Crema de leche con hilos de chocolate.",
+    "category": "artesanal",
+    "imagePlaceholder": "#f6efb2",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-8"
+  },
+  {
+    "id": "ron-pasas",
+    "name": "Ron con Pasas",
+    "description": "Crema con pasas maceradas en ron.",
+    "category": "artesanal",
+    "imagePlaceholder": "#f1d97a",
+    "price": 2.6,
+    "container": "Barquillo Dulce",
+    "sprite": "s2-9"
   },
   {
     "id": "paleta-maracuya",

@@ -30,8 +30,8 @@ export interface Product {
   /** Fallback swatch when there is no image. */
   color: string
   defaultContainerId?: string
-  /** Sub-tab inside the category (see lib/subgroups.ts); only for categories that have them. */
-  subgroupId?: string
+  /** Scoop picture of an artisan flavor: id of a cell of the sprite sheets (lib/scoopSprites.ts). */
+  sprite?: string
   archived: boolean
   createdAt: string
 }
@@ -56,9 +56,19 @@ export interface Snapshot {
   costCents?: number
 }
 
+/** Presentation sold by weight: a fixed price whatever the number of flavors. */
+export interface PackSnapshot {
+  kind: 'kilo' | 'medio'
+  label: string
+  priceCents: number
+}
+
 export interface LineBuild {
   /** The first scoop is the base. */
   scoops: Snapshot[]
+  /** Artisan line from the Porciones tab (cone, each scoop at its own price) or Por peso (`pack`). */
+  presentation?: 'porcion' | 'peso'
+  pack?: PackSnapshot
   container?: Snapshot
   extras: Snapshot[]
   toppings: Snapshot[]
@@ -104,6 +114,9 @@ export interface Settings {
   deliverySurchargeCents: number
   lowStockThreshold: number
   maxScoops: number
+  /** Fixed prices of the Por peso presentation. */
+  kiloPriceCents: number
+  halfKiloPriceCents: number
   queueAmberMinutes: number
   queueRedMinutes: number
 }
