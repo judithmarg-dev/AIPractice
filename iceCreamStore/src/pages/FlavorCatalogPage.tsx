@@ -111,123 +111,127 @@ export function FlavorCatalogPage() {
           </p>
         )}
 
-        {sections.length === 0 ? (
-          <p className="menu__hint">Todavía no hay productos activos. Crea categorías y productos desde el panel de staff.</p>
-        ) : (
-          <MenuTabs
-            label="Categorías del menú"
-            panelId="menu-category-panel"
-            tabs={sections.map(({ category, items }) => ({ id: category.id, label: category.name, count: items.length }))}
-            activeId={active?.category.id ?? null}
-            onChange={(id) => selectTab(id)}
-          />
-        )}
+        <div className="menu__body">
+          {sections.length === 0 ? (
+            <p className="menu__hint">Todavía no hay productos activos. Crea categorías y productos desde el panel de staff.</p>
+          ) : (
+            <MenuTabs
+              label="Categorías del menú"
+              panelId="menu-category-panel"
+              tabs={sections.map(({ category, items }) => ({ id: category.id, label: category.name, count: items.length }))}
+              activeId={active?.category.id ?? null}
+              onChange={(id) => selectTab(id)}
+            />
+          )}
 
-        {sections.length > 0 && !active && (
-          <p className="menu__prompt">Elige una categoría para ver sus productos.</p>
-        )}
-
-        {active && (
-          <section
-            id="menu-category-panel"
-            role="tabpanel"
-            aria-labelledby={`tab-${active.category.id}`}
-            className="menu__section"
-          >
-            {presentations.length > 0 && (
-              <MenuTabs
-                variant="option"
-                label={`Presentaciones de ${active.category.name}`}
-                panelId="menu-option-panel"
-                tabs={presentations.map((g) => ({ id: g.id, label: g.name }))}
-                activeId={activeSub?.id ?? null}
-                onChange={(id) => selectTab(active.category.id, id)}
-              />
+          <div className="menu__main">
+            {sections.length > 0 && !active && (
+              <p className="menu__prompt">Elige una categoría para ver sus productos.</p>
             )}
 
-            {visible === null ? (
-              <p className="menu__prompt">Elige una opción de {active.category.name}.</p>
-            ) : (
-              <div
-                {...(activeSub
-                  ? { id: 'menu-option-panel', role: 'tabpanel', 'aria-labelledby': `tab-${activeSub.id}` }
-                  : {})}
+            {active && (
+              <section
+                id="menu-category-panel"
+                role="tabpanel"
+                aria-labelledby={`tab-${active.category.id}`}
+                className="menu__section"
               >
-                {packMode === 'peso' && (
-                  <div className="menu-tabs menu-tabs--option menu__weights" role="radiogroup" aria-label="Peso">
-                    {WEIGHTS.map((w: Weight) => (
-                      <button
-                        key={w}
-                        type="button"
-                        role="radio"
-                        aria-checked={pack.weight === w}
-                        className={`menu-tabs__tab${pack.weight === w ? ' menu-tabs__tab--active' : ''}`}
-                        onClick={() => dispatch(setPackWeight(w))}
-                      >
-                        {PACK_RULES[w].label}
-                        <span className="menu-tabs__count">{limitText(PACK_RULES[w]).replace(' sabores', '')}</span>
-                      </button>
-                    ))}
-                  </div>
+                {presentations.length > 0 && (
+                  <MenuTabs
+                    variant="option"
+                    label={`Presentaciones de ${active.category.name}`}
+                    panelId="menu-option-panel"
+                    tabs={presentations.map((g) => ({ id: g.id, label: g.name }))}
+                    activeId={activeSub?.id ?? null}
+                    onChange={(id) => selectTab(active.category.id, id)}
+                  />
                 )}
-                {packMode && visible.length > 0 && (
-                  <p className="menu__hint">
-                    {packMode === 'porcion'
-                      ? `Toca los sabores de tu porción: ${limitText(rule)}. Se apilan sobre el barquillo.`
-                      : `Elige ${limitText(rule)} para ${rule.label.toLowerCase()}.`}
-                  </p>
-                )}
-                {!packMode && !showPanel && !editing && visible.length > 0 && (
-                  <p className="menu__hint">
-                    {active.category.buildable
-                      ? 'Toca un sabor para armar el helado bola por bola.'
-                      : 'Toca un producto para agregarlo al pedido.'}
-                  </p>
-                )}
-                {visible.length === 0 ? (
-                  <p className="menu__prompt">
-                    Todavía no hay productos en {activeSub?.name ?? active.category.name}. Asígnalos desde Inventario.
-                  </p>
+
+                {visible === null ? (
+                  <p className="menu__prompt">Elige una opción de {active.category.name}.</p>
                 ) : (
-                  // Re-mounted per tab so the tiles replay their entrance animation.
-                  <div key={`${active.category.id}/${activeSub?.id ?? ''}`} className="menu__tiles">
-                    {visible.map((product, index) => (
-                      <FlavorTile
-                        key={product.id}
-                        product={product}
-                        buildable={active.category.buildable}
-                        index={index}
-                        isSelected={selectedId === product.id}
-                        toggle={
-                          packMode
-                            ? {
-                                checked: pack.flavorIds.includes(product.id),
-                                showCheck: packMode === 'peso',
-                                disabled:
-                                  !pack.flavorIds.includes(product.id) &&
-                                  (pack.flavorIds.length >= rule.max || (available[product.id] ?? 0) < 1),
+                  <div
+                    {...(activeSub
+                      ? { id: 'menu-option-panel', role: 'tabpanel', 'aria-labelledby': `tab-${activeSub.id}` }
+                      : {})}
+                  >
+                    {packMode === 'peso' && (
+                      <div className="menu-tabs menu-tabs--option menu__weights" role="radiogroup" aria-label="Peso">
+                        {WEIGHTS.map((w: Weight) => (
+                          <button
+                            key={w}
+                            type="button"
+                            role="radio"
+                            aria-checked={pack.weight === w}
+                            className={`menu-tabs__tab${pack.weight === w ? ' menu-tabs__tab--active' : ''}`}
+                            onClick={() => dispatch(setPackWeight(w))}
+                          >
+                            {PACK_RULES[w].label}
+                            <span className="menu-tabs__count">{limitText(PACK_RULES[w]).replace(' sabores', '')}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {packMode && visible.length > 0 && (
+                      <p className="menu__hint">
+                        {packMode === 'porcion'
+                          ? `Toca los sabores de tu porción: ${limitText(rule)}. Se apilan sobre el barquillo.`
+                          : `Elige ${limitText(rule)} para ${rule.label.toLowerCase()}.`}
+                      </p>
+                    )}
+                    {!packMode && !showPanel && !editing && visible.length > 0 && (
+                      <p className="menu__hint">
+                        {active.category.buildable
+                          ? 'Toca un sabor para armar el helado bola por bola.'
+                          : 'Toca un producto para agregarlo al pedido.'}
+                      </p>
+                    )}
+                    {visible.length === 0 ? (
+                      <p className="menu__prompt">
+                        Todavía no hay productos en {activeSub?.name ?? active.category.name}. Asígnalos desde Inventario.
+                      </p>
+                    ) : (
+                      // Re-mounted per tab so the tiles replay their entrance animation.
+                      <div key={`${active.category.id}/${activeSub?.id ?? ''}`} className="menu__tiles">
+                        {visible.map((product, index) => (
+                          <FlavorTile
+                            key={product.id}
+                            product={product}
+                            buildable={active.category.buildable}
+                            index={index}
+                            isSelected={selectedId === product.id}
+                            toggle={
+                              packMode
+                                ? {
+                                    checked: pack.flavorIds.includes(product.id),
+                                    showCheck: packMode === 'peso',
+                                    disabled:
+                                      !pack.flavorIds.includes(product.id) &&
+                                      (pack.flavorIds.length >= rule.max || (available[product.id] ?? 0) < 1),
+                                  }
+                                : undefined
+                            }
+                            onClick={() => {
+                              if (packMode) {
+                                setSelectedId(null)
+                                dispatch(toggleFlavor(product.id))
+                              } else if (active.category.buildable) {
+                                setSelectedId(null)
+                                setBuild({ baseId: product.id })
+                              } else {
+                                setSelectedId(selectedId === product.id ? null : product.id)
                               }
-                            : undefined
-                        }
-                        onClick={() => {
-                          if (packMode) {
-                            setSelectedId(null)
-                            dispatch(toggleFlavor(product.id))
-                          } else if (active.category.buildable) {
-                            setSelectedId(null)
-                            setBuild({ baseId: product.id })
-                          } else {
-                            setSelectedId(selectedId === product.id ? null : product.id)
-                          }
-                        }}
-                      />
-                    ))}
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
+              </section>
             )}
-          </section>
-        )}
+          </div>
+        </div>
       </div>
 
       {showPanel && (

@@ -83,6 +83,9 @@ const BACKDROP = 238 // min(r,g,b) at or above this counts as backdrop
 const FEATHER = 26
 /** Nearly white scoops (coconut) would be hollowed out; they only lose the pure-white backdrop. */
 const STRICT = new Set(['s1-9'])
+/** Every scoop is scaled to this width and sits on the same baseline, whatever its sheet. */
+const TARGET_W = 214
+const BASELINE = 214
 
 function cutOut(img: HTMLImageElement, sprite: ScoopSprite): string {
   const canvas = document.createElement('canvas')
@@ -97,10 +100,13 @@ function cutOut(img: HTMLImageElement, sprite: ScoopSprite): string {
   const backdrop = STRICT.has(sprite.id) ? 252 : BACKDROP
   const feather = STRICT.has(sprite.id) ? 6 : FEATHER
   const lightness = (i: number) => Math.min(px[i * 4], px[i * 4 + 1], px[i * 4 + 2])
+  // Sheet 2 comes with a cast shadow: gray, light and unsaturated, so it is part of the backdrop.
+  const isShadow = (i: number) =>
+    sprite.sheet === 2 && Math.max(px[i * 4], px[i * 4 + 1], px[i * 4 + 2]) - lightness(i) < 22 && lightness(i) > 120
   const seen = new Uint8Array(n)
   const stack: number[] = []
   const push = (i: number) => {
-    if (!seen[i] && lightness(i) >= backdrop - feather) {
+    if (!seen[i] && (lightness(i) >= backdrop - feather || isShadow(i))) {
       seen[i] = 1
       stack.push(i)
     }
@@ -124,11 +130,41 @@ function cutOut(img: HTMLImageElement, sprite: ScoopSprite): string {
   for (let i = 0; i < n; i++) {
     if (!seen[i]) continue
     // Fully light pixels vanish; the feather band keeps a soft edge.
-    const alpha = Math.max(0, Math.min(1, (backdrop - lightness(i)) / feather))
+    const alpha = isShadow(i) ? 0 : Math.max(0, Math.min(1, (backdrop - lightness(i)) / feather))
     px[i * 4 + 3] = Math.round(alpha * 255)
   }
   ctx.putImageData(data, 0, 0)
-  return canvas.toDataURL('image/png')
+  return normalize(canvas)
+}
+
+/** Trims the cut-out to its visible pixels and rescales it to TARGET_W, centered on the baseline. */
+function normalize(source: HTMLCanvasElement): string {
+  const ctx = source.getContext('2d', { willReadFrequently: true })!
+  const { data } = ctx.getImageData(0, 0, CELL.w, CELL.h)
+  let minX = CELL.w, maxX = -1, minY = CELL.h, maxY = -1
+  for (let y = 0; y < CELL.h; y++) {
+    for (let x = 0; x < CELL.w; x++) {
+      if (data[(y * CELL.w + x) * 4 + 3] > 140) {
+        if (x < minX) minX = x
+        if (x > maxX) maxX = x
+        if (y < minY) minY = y
+        if (y > maxY) maxY = y
+      }
+    }
+  }
+  if (maxX < 0) return source.toDataURL('image/png')
+  const w = maxX - minX + 1
+  const h = maxY - minY + 1
+  const scale = TARGET_W / w
+  const out = document.createElement('canvas')
+  out.width = CELL.w
+  out.height = CELL.h
+  const octx = out.getContext('2d')!
+  octx.imageSmoothingQuality = 'high'
+  const dw = w * scale
+  const dh = h * scale
+  octx.drawImage(source, minX, minY, w, h, (CELL.w - dw) / 2, BASELINE - dh, dw, dh)
+  return out.toDataURL('image/png')
 }
 
 /** Data URL of the scoop with a transparent background (cached per sprite). */
