@@ -30,6 +30,8 @@ export interface Product {
   /** Fallback swatch when there is no image. */
   color: string
   defaultContainerId?: string
+  /** Sub-tab inside the category (see lib/subgroups.ts); only for categories that have them. */
+  subgroupId?: string
   archived: boolean
   createdAt: string
 }

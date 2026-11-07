@@ -8,6 +8,7 @@ import { ScoopIcon } from '@/components/FlavorTile'
 import { centsToInput, formatOptionPrice, parseMoneyInput } from '@/lib/money'
 import { ImageError, compressImage } from '@/lib/image'
 import { parseIntInRange, validateLength } from '@/lib/validation'
+import { subgroupOf, subgroupsOf } from '@/lib/subgroups'
 import type { Product } from '@/types/models'
 
 export type ProductInput = Omit<Product, 'id' | 'archived' | 'createdAt'>
@@ -36,11 +37,13 @@ export function ProductForm({ initial, submitLabel, onSubmit }: ProductFormProps
   const [image, setImage] = useState<string | undefined>(initial?.image)
   const [color, setColor] = useState(initial?.color ?? '#f9a8d4')
   const [containerId, setContainerId] = useState(initial?.defaultContainerId ?? '')
+  const [subgroupId, setSubgroupId] = useState(initial ? subgroupOf(initial) ?? '' : '')
   const [errors, setErrors] = useState<Errors>({})
   const [processing, setProcessing] = useState(false)
   const [creatingCategory, setCreatingCategory] = useState(false)
 
   const buildable = categoryMap[categoryId]?.buildable ?? false
+  const subgroups = subgroupsOf(categoryId)
   // An archived current category stays selectable so editing does not silently move the product.
   const categoryChoices =
     initial && categoryMap[initial.categoryId]?.archived ? [...categories, categoryMap[initial.categoryId]] : categories
@@ -89,6 +92,9 @@ export function ProductForm({ initial, submitLabel, onSubmit }: ProductFormProps
     if (parsedCost?.ok) data.costCents = parsedCost.cents
     if (image) data.image = image
     if (containerId) data.defaultContainerId = containerId
+    if (subgroups.length > 0) {
+      data.subgroupId = subgroups.some((g) => g.id === subgroupId) ? subgroupId : subgroups[0].id
+    }
     onSubmit(data)
   }
 
@@ -129,6 +135,24 @@ export function ProductForm({ initial, submitLabel, onSubmit }: ProductFormProps
         </select>
         {err('categoryId')}
       </label>
+
+      {subgroups.length > 0 && (
+        <label className="field">
+          <span className="field__label">Opción en el menú</span>
+          <select
+            className="field__input"
+            value={subgroups.some((g) => g.id === subgroupId) ? subgroupId : subgroups[0].id}
+            onChange={(e) => setSubgroupId(e.target.value)}
+          >
+            {subgroups.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+          <span className="field__hint">Pestaña de {categoryMap[categoryId]?.name} donde aparece este producto.</span>
+        </label>
+      )}
 
       <div className="form__row">
         <MoneyField

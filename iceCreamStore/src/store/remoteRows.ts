@@ -68,6 +68,7 @@ export const productToRow = (p: Product): Row => ({
   image: p.image ?? null,
   color: p.color,
   default_container_id: p.defaultContainerId ?? null,
+  subgroup_id: p.subgroupId ?? null,
   archived: p.archived,
   created_at: p.createdAt,
 })
@@ -83,6 +84,7 @@ export const productFromRow = (r: Row): Product => ({
   image: opt(r.image as string | null),
   color: r.color as string,
   defaultContainerId: opt(r.default_container_id as string | null),
+  subgroupId: opt(r.subgroup_id as string | null),
   archived: r.archived as boolean,
   createdAt: iso(r.created_at)!,
 })

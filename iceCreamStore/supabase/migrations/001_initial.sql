@@ -42,9 +42,13 @@ create table if not exists products (
   image                text,          -- data URL comprimida (src/lib/image.ts)
   color                text not null default '#9ca3af',
   default_container_id text,          -- id de una opción "envase"; sin FK: al borrar la opción se limpia desde la app
+  subgroup_id          text,          -- pestaña dentro de la categoría (Artesanales: opcion-1 / opcion-2)
   archived             boolean not null default false,
   created_at           timestamptz not null default now()
 );
+
+-- Columnas agregadas después de la primera versión del script (para bases ya creadas).
+alter table products add column if not exists subgroup_id text;
 
 create table if not exists orders (
   id              text primary key,

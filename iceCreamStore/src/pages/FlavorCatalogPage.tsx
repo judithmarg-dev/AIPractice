@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { useAppSelector } from '@/store/hooks'
 import { selectActiveProducts } from '@/store/slices/inventorySlice'
 import { selectActiveCategories } from '@/store/slices/categoriesSlice'
@@ -9,7 +9,8 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatMoney } from '@/lib/money'
 import { plural } from '@/lib/texts'
 import type { OrderLine } from '@/types/models'
-import { MenuSidebar, type MenuSection } from '@/components/MenuSidebar'
+import { subgroupOf, subgroupsOf } from '@/lib/subgroups'
+import { MenuTabs } from '@/components/MenuTabs'
 import { FlavorTile } from '@/components/FlavorTile'
 import { FlavorDetailPanel } from '@/components/FlavorDetailPanel'
 import { BuildModal } from '@/components/BuildModal'
@@ -21,6 +22,7 @@ interface BuildTarget {
 
 export function FlavorCatalogPage() {
   const location = useLocation()
+  const [params, setParams] = useSearchParams()
   const products = useAppSelector(selectActiveProducts)
   const categories = useAppSelector(selectActiveCategories)
   const draft = useAppSelector(selectDraft)
@@ -36,14 +38,22 @@ export function FlavorCatalogPage() {
   const sections = useMemo(
     () =>
       categories
-        .map((c) => ({ category: c, id: `cat-${c.id}`, items: products.filter((p) => p.categoryId === c.id) }))
+        .map((c) => ({ category: c, items: products.filter((p) => p.categoryId === c.id) }))
         .filter((s) => s.items.length > 0),
     [categories, products]
   )
-  const sidebarSections: MenuSection[] = useMemo(
-    () => sections.map(({ id, category }) => ({ id, label: category.name })),
-    [sections]
-  )
+
+  // Nothing is shown until a category tab is chosen; the choice lives in the URL (?cat=&sub=).
+  const active = sections.find((s) => s.category.id === params.get('cat')) ?? null
+  const subgroups = active ? subgroupsOf(active.category.id) : []
+  const activeSub = subgroups.find((g) => g.id === params.get('sub')) ?? null
+  // Categories with sub-tabs (Artesanales) wait for one to be chosen too.
+  const visible = !active ? null : subgroups.length === 0 ? active.items : activeSub ? active.items.filter((p) => subgroupOf(p) === activeSub.id) : null
+
+  const selectTab = (cat: string, sub?: string) => {
+    setSelectedId(null)
+    setParams(sub ? { cat, sub } : { cat }, { replace: true })
+  }
 
   const selected = products.find((p) => p.id === selectedId) ?? null
   const hasLines = draft.lines.length > 0 || editing
@@ -63,8 +73,6 @@ export function FlavorCatalogPage() {
 
   return (
     <main className={`menu${showPanel ? ' menu--open' : ''}`}>
-      <MenuSidebar sections={sidebarSections} />
-
       <div className="menu__content">
         <h1 className="menu__title">Menú</h1>
         {editing && (
@@ -72,39 +80,90 @@ export function FlavorCatalogPage() {
             Editando Orden #{number}: agrega o cambia productos y guarda los cambios en el panel de la orden.
           </p>
         )}
-        {!showPanel && !editing && (
-          <p className="menu__hint">Toca un producto para agregarlo al pedido. Los artesanales se arman bola por bola.</p>
-        )}
-        {sections.length === 0 && (
+
+        {sections.length === 0 ? (
           <p className="menu__hint">Todavía no hay productos activos. Crea categorías y productos desde el panel de staff.</p>
+        ) : (
+          <MenuTabs
+            label="Categorías del menú"
+            panelId="menu-category-panel"
+            tabs={sections.map(({ category, items }) => ({ id: category.id, label: category.name, count: items.length }))}
+            activeId={active?.category.id ?? null}
+            onChange={(id) => selectTab(id)}
+          />
         )}
 
-        {sections.map(({ category, id, items }) => (
-          <section key={id} id={id} className="menu__section" aria-labelledby={`${id}-heading`}>
-            <h2 id={`${id}-heading`} className="menu__section-title">
-              {category.name}
-            </h2>
-            <div className="menu__tiles">
-              {items.map((product, index) => (
-                <FlavorTile
-                  key={product.id}
-                  product={product}
-                  buildable={category.buildable}
-                  index={index}
-                  isSelected={selectedId === product.id}
-                  onClick={() => {
-                    if (category.buildable) {
-                      setSelectedId(null)
-                      setBuild({ baseId: product.id })
-                    } else {
-                      setSelectedId(selectedId === product.id ? null : product.id)
-                    }
-                  }}
-                />
-              ))}
-            </div>
+        {sections.length > 0 && !active && (
+          <p className="menu__prompt">Elige una categoría para ver sus productos.</p>
+        )}
+
+        {active && (
+          <section
+            id="menu-category-panel"
+            role="tabpanel"
+            aria-labelledby={`tab-${active.category.id}`}
+            className="menu__section"
+          >
+            {subgroups.length > 0 && (
+              <MenuTabs
+                variant="option"
+                label={`Opciones de ${active.category.name}`}
+                panelId="menu-option-panel"
+                tabs={subgroups.map((g) => ({
+                  id: g.id,
+                  label: g.name,
+                  count: active.items.filter((p) => subgroupOf(p) === g.id).length,
+                }))}
+                activeId={activeSub?.id ?? null}
+                onChange={(id) => selectTab(active.category.id, id)}
+              />
+            )}
+
+            {visible === null ? (
+              <p className="menu__prompt">Elige una opción de {active.category.name}.</p>
+            ) : (
+              <div
+                {...(activeSub
+                  ? { id: 'menu-option-panel', role: 'tabpanel', 'aria-labelledby': `tab-${activeSub.id}` }
+                  : {})}
+              >
+                {!showPanel && !editing && visible.length > 0 && (
+                  <p className="menu__hint">
+                    {active.category.buildable
+                      ? 'Toca un sabor para armar el helado bola por bola.'
+                      : 'Toca un producto para agregarlo al pedido.'}
+                  </p>
+                )}
+                {visible.length === 0 ? (
+                  <p className="menu__prompt">
+                    Todavía no hay productos en {activeSub?.name ?? active.category.name}. Asígnalos desde Inventario.
+                  </p>
+                ) : (
+                  // Re-mounted per tab so the tiles replay their entrance animation.
+                  <div key={`${active.category.id}/${activeSub?.id ?? ''}`} className="menu__tiles">
+                    {visible.map((product, index) => (
+                      <FlavorTile
+                        key={product.id}
+                        product={product}
+                        buildable={active.category.buildable}
+                        index={index}
+                        isSelected={selectedId === product.id}
+                        onClick={() => {
+                          if (active.category.buildable) {
+                            setSelectedId(null)
+                            setBuild({ baseId: product.id })
+                          } else {
+                            setSelectedId(selectedId === product.id ? null : product.id)
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </section>
-        ))}
+        )}
       </div>
 
       {showPanel && (

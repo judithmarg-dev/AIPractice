@@ -103,12 +103,14 @@ Negative letter-spacing (`-0.02em` to `-0.03em`) on titles only.
 ```
 SiteHeader (sticky, 64px)           logo · MENÚ · RESERVAR · [Panel staff]
 SiteSubnav (sticky, 44px)           "Menú" tab
-.menu grid  ≥1024px: 200px sidebar | content | 0 → 360px panel when open
-            <1024px: pill-row sidebar on top, panel becomes a drawer,
+.menu grid  ≥1024px: content | 0 → 360px panel when open
+            <1024px: panel becomes a drawer,
                      a dark floating "order bar" summarises the order
+MenuTabs    category tabs (sticky) → [option pills for Artesanales] → tiles
 ```
 
-- Sections: `h2` + `.menu__tiles` grid (`auto-fill, minmax(150px, 1fr)`, 2 columns on phones).
+- Nothing is listed until a category tab is chosen (`?cat=`); Artesanales also needs an option
+  tab (`?sub=`, defined in `src/lib/subgroups.ts`). The tab panel holds a `.menu__tiles` grid (`auto-fill, minmax(150px, 1fr)`, 2 columns on phones).
 - Sticky elements offset from `calc(var(--header-h) + 44px + 1.5rem)`.
 - The panel column exists only while an item is selected or the order has lines.
 - The panel sits on `--bg` with a `1px --border` edge and `16px` radius; inside it, blocks are
@@ -138,8 +140,10 @@ SiteSubnav (sticky, 44px)           "Menú" tab
 - **FlavorTile** — circular swatch (96px; 120px from desktop), name, price caption
   ("$2.60 / bola" for artesanales), optional "Agotado". Selected = `--accent` ring with a
   `--bg` gap around the circle.
-- **MenuSidebar** — "Categorías" heading, plain links, active link bold `--text-h`; below desktop
-  it is a sticky pill row where the active pill is `--accent` with white text.
+- **MenuTabs** — WAI-ARIA tabs (click, ←/→, Home/End). `category`: sticky underlined bar under the
+  sub-nav, active tab `--text-h` with a 3px `--accent` underline, product count chip; scrolls
+  sideways on phones. `option`: segmented pill track in `--surface-tint` (like the mode toggle),
+  active pill `--accent` with white text. Empty states use `.menu__prompt` (centred `--text`).
 - **Order bar (below desktop)** — floating dark pill (`--text-h` fill, `--bg` text) at the
   bottom: "Orden #N · 3 artículos" left, total in `--accent` + "Ver orden" right.
 - **Inputs** — 1px `--border`, 8px radius, `--accent` focus ring (2px, 2px offset).

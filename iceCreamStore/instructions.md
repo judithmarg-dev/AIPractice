@@ -31,6 +31,8 @@ Sigue los pasos en orden.
 | `orders` | Pedidos (líneas en `jsonb`) | Staff | Staff |
 | `bookings` | Reservas de mesa | Staff | Cualquiera puede **crear**; el staff gestiona |
 
+> **¿Ya habías ejecutado el script antes?** Vuelve a ejecutarlo: agrega la columna `products.subgroup_id` (la pestaña "Opción 1 / Opción 2" de Artesanales). Sin ella, guardar productos falla.
+>
 > El script es idempotente: se puede ejecutar de nuevo sin perder datos. Las reglas de acceso están implementadas con **Row-Level Security (RLS)**.
 
 ## 3. Crear el usuario staff
