@@ -350,11 +350,12 @@
   }
 }
 
+/* Desktop: the order panel takes a side column only while it is open. The column switches at once
+   (animating grid-template-columns squeezed the panel and reflowed the tile grid on every frame,
+   which made the tiles jump); the panel itself slides in with a transform-only animation. */
 @media (min-width: 1024px) {
   .menu {
-    grid-template-columns: minmax(0, 1fr) 0px;
     column-gap: 2.5rem;
-    transition: grid-template-columns 0.3s ease-out;
   }
 
   .menu--open {
@@ -1719,8 +1720,38 @@
   color: var(--text-h);
 }
 
-.pack__flavor-price {
+/* Porción price by scoop count (1, 2, 3 bolas): the current count is highlighted. */
+.pack__tiers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pack__tier {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.4rem 0.3rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
   color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.pack__tier span:last-child {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.pack__tier--active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--text-h);
 }
 
 .pack__flavor-remove {

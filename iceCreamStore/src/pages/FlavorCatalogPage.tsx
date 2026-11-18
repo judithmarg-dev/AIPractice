@@ -11,7 +11,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatMoney } from '@/lib/money'
 import { plural } from '@/lib/texts'
 import type { OrderLine } from '@/types/models'
-import { PACK_RULES, WEIGHTS, limitText, presentationsOf, type Weight } from '@/lib/presentations'
+import { PACK_RULES, WEIGHTS, limitText, porcionPriceCents, presentationsOf, type Weight } from '@/lib/presentations'
 import { MenuTabs } from '@/components/MenuTabs'
 import { FlavorTile } from '@/components/FlavorTile'
 import { FlavorDetailPanel } from '@/components/FlavorDetailPanel'
@@ -35,6 +35,7 @@ export function FlavorCatalogPage() {
   const pack = useAppSelector(selectPack)
   const packKind = useAppSelector(selectPackKind)
   const available = useAppSelector((s) => selectAvailableStock(s, null))
+  const settings = useAppSelector((s) => s.settings)
   const isDesktop = useMediaQuery('(min-width: 1024px)')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [orderOpen, setOrderOpen] = useState(() => Boolean((location.state as { openOrder?: boolean } | null)?.openOrder))
@@ -90,7 +91,7 @@ export function FlavorCatalogPage() {
       if (b.presentation) {
         // Cone / by-weight lines are edited in the pack builder: take the line back into it.
         const mode = b.presentation
-        dispatch(loadPack({ mode, weight: b.pack?.kind ?? 'kilo', flavorIds: b.scoops.map((s) => s.id) }))
+        dispatch(loadPack({ mode, weight: b.pack && b.pack.kind !== 'porcion' ? b.pack.kind : 'kilo', flavorIds: b.scoops.map((s) => s.id) }))
         dispatch(removeLine(line.lineId))
         setSelectedId(null)
         setParams({ cat: line.categoryId, sub: mode === 'peso' ? 'peso' : 'porciones' }, { replace: true })
@@ -175,7 +176,11 @@ export function FlavorCatalogPage() {
                     {packMode && visible.length > 0 && (
                       <p className="menu__hint">
                         {packMode === 'porcion'
-                          ? `Toca los sabores de tu porción: ${limitText(rule)}. Se apilan sobre el barquillo.`
+                          ? `Toca los sabores de tu porción: ${limitText(rule)}. Se apilan sobre el barquillo. ` +
+                            [1, 2, 3]
+                              .slice(0, rule.max)
+                              .map((n) => `${plural(n, 'bola', 'bolas')}: ${formatMoney(porcionPriceCents(settings, n))}`)
+                              .join(' · ')
                           : `Elige ${limitText(rule)} para ${rule.label.toLowerCase()}.`}
                       </p>
                     )}

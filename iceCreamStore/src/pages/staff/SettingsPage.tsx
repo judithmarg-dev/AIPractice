@@ -26,6 +26,10 @@ const INT_FIELDS: { key: Field; label: string; hint: string; min: number; max: n
   { key: 'queueRedMinutes', label: 'Alerta roja en la cola', hint: 'Minutos de espera para marcar un pedido como urgente.', min: 1, max: 600, suffix: 'min' },
 ]
 
+type ScoopPriceKey = 'oneScoopPriceCents' | 'twoScoopsPriceCents' | 'threeScoopsPriceCents'
+const SCOOP_PRICE_KEYS: ScoopPriceKey[] = ['oneScoopPriceCents', 'twoScoopsPriceCents', 'threeScoopsPriceCents']
+const scoopPricesOf = (s: Settings) => SCOOP_PRICE_KEYS.map((k) => centsToInput(s[k]))
+
 export default function SettingsPage() {
   const dispatch = useAppDispatch()
   const confirm = useConfirm()
@@ -42,7 +46,9 @@ export default function SettingsPage() {
   const [surcharge, setSurcharge] = useState(centsToInput(settings.deliverySurchargeCents))
   const [kiloPrice, setKiloPrice] = useState(centsToInput(settings.kiloPriceCents))
   const [halfKiloPrice, setHalfKiloPrice] = useState(centsToInput(settings.halfKiloPriceCents))
-  const [errors, setErrors] = useState<Partial<Record<Field | 'surcharge' | 'kilo' | 'halfKilo', string>>>({})
+  // Porciones de helados artesanales: fixed price per scoop count (index 0 = 1 bola).
+  const [scoopPrices, setScoopPrices] = useState(() => scoopPricesOf(settings))
+  const [errors, setErrors] = useState<Partial<Record<Field | 'surcharge' | 'kilo' | 'halfKilo' | ScoopPriceKey, string>>>({})
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -62,6 +68,11 @@ export default function SettingsPage() {
     const half = parseMoneyInput(halfKiloPrice)
     if (half.ok) patch.halfKiloPriceCents = half.cents
     else next.halfKilo = half.error
+    SCOOP_PRICE_KEYS.forEach((key, i) => {
+      const r = parseMoneyInput(scoopPrices[i])
+      if (r.ok) patch[key] = r.cents
+      else next[key] = r.error
+    })
     if (!next.queueRedMinutes && !next.queueAmberMinutes && patch.queueRedMinutes! <= patch.queueAmberMinutes!) {
       next.queueRedMinutes = 'Debe ser mayor que el tiempo de la alerta ámbar.'
     }
@@ -114,6 +125,7 @@ export default function SettingsPage() {
     setSurcharge(centsToInput(seed.settings.deliverySurchargeCents))
     setKiloPrice(centsToInput(seed.settings.kiloPriceCents))
     setHalfKiloPrice(centsToInput(seed.settings.halfKiloPriceCents))
+    setScoopPrices(scoopPricesOf(seed.settings))
     dispatch(pushToast({ message: 'La tienda volvió a los datos iniciales' }))
   }
 
@@ -153,6 +165,17 @@ export default function SettingsPage() {
             hint="Precio fijo, sin importar cuántos sabores lleve."
             required
           />
+          {SCOOP_PRICE_KEYS.map((key, i) => (
+            <MoneyField
+              key={key}
+              label={`Porción de ${i + 1} ${i === 0 ? 'bola' : 'bolas'} (artesanales)`}
+              value={scoopPrices[i]}
+              onChange={(v) => setScoopPrices((list) => list.map((x, j) => (j === i ? v : x)))}
+              error={errors[key]}
+              hint="Precio fijo de la porción con esa cantidad de bolas; no es la suma de cada bola."
+              required
+            />
+          ))}
           {INT_FIELDS.map((f) => (
             <label key={f.key} className="field">
               <span className="field__label">{f.label}{f.suffix ? ` (${f.suffix})` : ''}</span>

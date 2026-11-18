@@ -9,7 +9,7 @@ import { ScoopSprite } from '@/components/ScoopSprite'
 import { Icon } from '@/components/icons'
 import { formatMoney } from '@/lib/money'
 import { makeBuildLine, toSnapshot } from '@/lib/orderMath'
-import { PACK_RULES, limitText } from '@/lib/presentations'
+import { PACK_RULES, limitText, porcionPriceCents } from '@/lib/presentations'
 import { spriteOf } from '@/lib/scoopSprites'
 import { plural } from '@/lib/texts'
 import type { Product } from '@/types/models'
@@ -74,9 +74,11 @@ export function PackBuilder() {
 
   const rule = PACK_RULES[kind]
   const byWeight = pack.mode === 'peso'
+  // Both presentations have fixed prices: by weight, and a cone by how many scoops it has (not their sum).
   const priceCents = byWeight
     ? kind === 'kilo' ? settings.kiloPriceCents : settings.halfKiloPriceCents
-    : flavors.reduce((sum, p) => sum + p.priceCents, 0)
+    : porcionPriceCents(settings, flavors.length)
+  const scoopsLabel = plural(flavors.length, 'bola', 'bolas')
   const missing = rule.min - flavors.length
   const ready = missing <= 0
 
@@ -94,12 +96,16 @@ export function PackBuilder() {
           toppings: [],
           qty: 1,
           presentation: pack.mode,
-          pack: byWeight ? { kind: kind as 'kilo' | 'medio', label: rule.label, priceCents } : undefined,
+          pack: byWeight
+            ? { kind: kind as 'kilo' | 'medio', label: rule.label, priceCents }
+            : { kind: 'porcion', label: scoopsLabel, priceCents },
         })
       )
     )
     dispatch(clearPack())
-    dispatch(pushToast({ message: `${byWeight ? rule.label : 'Porción'} agregado al pedido · ${formatMoney(priceCents)}` }))
+    dispatch(
+      pushToast({ message: `${byWeight ? rule.label : `Porción de ${scoopsLabel}`} agregado al pedido · ${formatMoney(priceCents)}` })
+    )
   }
 
   return (
@@ -135,7 +141,6 @@ export function PackBuilder() {
         {flavors.map((p) => (
           <li key={p.id} className="pack__flavor">
             <span className="pack__flavor-name">{p.name}</span>
-            {!byWeight && <span className="pack__flavor-price">{formatMoney(p.priceCents)}</span>}
             <button
               type="button"
               className="pack__flavor-remove"
@@ -147,6 +152,17 @@ export function PackBuilder() {
           </li>
         ))}
       </ul>
+
+      {!byWeight && (
+        <ul className="pack__tiers" aria-label="Precio por cantidad de bolas">
+          {[1, 2, 3].slice(0, rule.max).map((n) => (
+            <li key={n} className={`pack__tier${n === flavors.length ? ' pack__tier--active' : ''}`}>
+              <span>{plural(n, 'bola', 'bolas')}</span>
+              <span>{formatMoney(porcionPriceCents(settings, n))}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <p className="pack__hint">
         {ready
