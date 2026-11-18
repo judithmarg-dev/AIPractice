@@ -56,9 +56,12 @@ export interface Snapshot {
   costCents?: number
 }
 
-/** Presentation sold by weight: a fixed price whatever the number of flavors. */
+/**
+ * Artisan presentation with a fixed price: by weight (kilo / ½ kilo, whatever the number of flavors)
+ * or a cone (`porcion`), priced by how many scoops it has (1, 2 or 3), not by adding them up.
+ */
 export interface PackSnapshot {
-  kind: 'kilo' | 'medio'
+  kind: 'kilo' | 'medio' | 'porcion'
   label: string
   priceCents: number
 }
@@ -66,7 +69,7 @@ export interface PackSnapshot {
 export interface LineBuild {
   /** The first scoop is the base. */
   scoops: Snapshot[]
-  /** Artisan line from the Porciones tab (cone, each scoop at its own price) or Por peso (`pack`). */
+  /** Artisan line from the Porciones tab (cone, priced by scoop count) or Por peso (`pack`). */
   presentation?: 'porcion' | 'peso'
   pack?: PackSnapshot
   container?: Snapshot
@@ -117,6 +120,10 @@ export interface Settings {
   /** Fixed prices of the Por peso presentation. */
   kiloPriceCents: number
   halfKiloPriceCents: number
+  /** Fixed prices of the Porciones presentation (Helados artesanales) by scoop count: 1, 2 and 3 scoops. */
+  oneScoopPriceCents: number
+  twoScoopsPriceCents: number
+  threeScoopsPriceCents: number
   queueAmberMinutes: number
   queueRedMinutes: number
 }

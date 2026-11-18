@@ -54,7 +54,7 @@ export function FlavorTile({ product, buildable, index, isSelected = false, togg
       aria-expanded={buildable || toggle ? undefined : isSelected}
       aria-pressed={toggle ? checked : undefined}
       aria-disabled={toggle?.disabled || undefined}
-      aria-label={`${product.name}, ${priceLabel}${soldOut ? `, ${T.soldOut.toLowerCase()}` : ''}`}
+      aria-label={`${product.name}${toggle ? '' : `, ${priceLabel}`}${soldOut ? `, ${T.soldOut.toLowerCase()}` : ''}`}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && onClick) {
           e.preventDefault()
@@ -79,7 +79,8 @@ export function FlavorTile({ product, buildable, index, isSelected = false, togg
         )}
       </div>
       <h3 className="flavor-tile__name">{product.name}</h3>
-      <span className="flavor-tile__price">{priceLabel}</span>
+      {/* Inside an artisan pack the price is the pack's (by scoop count or weight), not the flavor's. */}
+      {!toggle && <span className="flavor-tile__price">{priceLabel}</span>}
       {soldOut && <span className="chip chip--danger flavor-tile__note">{T.soldOut}</span>}
     </article>
   )

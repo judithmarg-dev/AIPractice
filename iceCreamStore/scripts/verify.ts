@@ -11,7 +11,8 @@ import { toCsv } from '@/lib/csv'
 import { aggregatePeriod, indexOrders, peakHour, serviceSplit, starFlavor, stockAlerts, supplySignals, variation } from '@/lib/dashboard'
 import { periodContaining, periodLabel, shiftPeriod, canGoNext } from '@/lib/period'
 import { validateCategoryName } from '@/lib/validation'
-import { migrateLegacyItems, SEED_CATEGORIES, SEED_OPTIONS } from '@/store/seed'
+import { DEFAULT_SETTINGS, migrateLegacyItems, SEED_CATEGORIES, SEED_OPTIONS } from '@/store/seed'
+import { porcionPriceCents } from '@/lib/presentations'
 import { migrate } from '@/store/persistence'
 import { generateDemoOrders } from '@/lib/demo'
 import type { Order, OrderLine, Product } from '@/types/models'
@@ -185,6 +186,14 @@ const scoopsOf = [pist, dulce, { id: 'chocolate-intenso', name: 'Chocolate Inten
 const porcion = makeBuildLine({ lineId: 'p1', categoryId: 'artesanal', scoops: scoopsOf, extras: [], toppings: [], qty: 2, presentation: 'porcion' })
 check('porción: cada bola a su precio', porcion.unitPriceCents, 780)
 check('porción: consume 1 de stock por bola y unidad', stockDelta([], [porcion]), { 'pistacho-siciliano': -2, 'dulce-de-leche': -2, 'chocolate-intenso': -2 })
+check('porción: precio por cantidad de bolas (no es suma)', [1, 2, 3].map((n) => porcionPriceCents(DEFAULT_SETTINGS, n)), [300, 500, 650])
+const porcion2 = makeBuildLine({
+  lineId: 'p2', categoryId: 'artesanal', scoops: scoopsOf.slice(0, 2), extras: [], toppings: [], qty: 2,
+  presentation: 'porcion', pack: { kind: 'porcion', label: '2 bolas', priceCents: porcionPriceCents(DEFAULT_SETTINGS, 2) },
+})
+check('porción de 2 bolas: precio fijo', porcion2.unitPriceCents, 500)
+check('porción de 2 bolas: costo sigue siendo el de las bolas', porcion2.unitCostCents !== undefined, true)
+check('porción de 2 bolas: descripción', describeLine(porcion2).title, 'Helado artesanal · 2 bolas')
 const kilo = makeBuildLine({
   lineId: 'k1', categoryId: 'artesanal', scoops: scoopsOf, extras: [], toppings: [], qty: 1,
   presentation: 'peso', pack: { kind: 'kilo', label: '1 kilo', priceCents: 1800 },

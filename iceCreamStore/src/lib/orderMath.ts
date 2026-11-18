@@ -5,7 +5,7 @@ import type { LineBuild, OrderLine, ServiceMode, Settings, Snapshot } from '@/ty
 
 const sum = (items: Snapshot[]) => items.reduce((s, i) => s + i.priceCents, 0)
 
-/** §8.1 — every scoop at its own price + container + extras + toppings (by weight: the pack's fixed price). */
+/** §8.1 — every scoop at its own price + container + extras + toppings (artisan packs: the pack's fixed price). */
 export function buildUnitPrice(build: LineBuild): number {
   const flavors = build.pack ? build.pack.priceCents : sum(build.scoops)
   return flavors + (build.container?.priceCents ?? 0) + sum(build.extras) + sum(build.toppings)
@@ -47,7 +47,8 @@ export function lineCost(line: OrderLine): { cents: number; incomplete: boolean 
     return { cents: (line.unitCostCents ?? 0) * line.qty, incomplete: line.unitCostCents === undefined }
   }
   // Flavor costs are per scoop; a kilo has no configured cost, so its profit is flagged as incomplete.
-  if (line.build.pack) return { cents: 0, incomplete: true }
+  // A cone (porción) still costs its scoops, even though its price is fixed by scoop count.
+  if (line.build.pack && line.build.pack.kind !== 'porcion') return { cents: 0, incomplete: true }
   const parts = [...line.build.scoops, ...line.build.extras, ...line.build.toppings]
   if (line.build.container) parts.push(line.build.container)
   let unit = 0
@@ -122,7 +123,7 @@ export function describeLine(line: OrderLine): { title: string; detail: string }
   const parts = [scoops.map((s) => s.name).join(' + ')]
   if (container) parts.push(container.name)
   for (const o of [...extras, ...toppings]) parts.push(o.name)
-  if (pack) return { title: `${T.buildLineTitle} · ${pack.label}`, detail: `${plural(scoops.length, 'sabor', 'sabores')}: ${parts[0]}` }
+  if (pack && pack.kind !== 'porcion') return { title: `${T.buildLineTitle} · ${pack.label}`, detail: `${plural(scoops.length, 'sabor', 'sabores')}: ${parts[0]}` }
   return {
     title: `${T.buildLineTitle} · ${plural(scoops.length, 'bola', 'bolas')}`,
     detail: parts.join(' • '),
@@ -163,7 +164,7 @@ export function makeBuildLine(params: {
     categoryId: params.categoryId,
     qty: params.qty,
     unitPriceCents: buildUnitPrice(build),
-    unitCostCents: unitCost.incomplete && params.pack ? undefined : unitCost.cents,
+    unitCostCents: unitCost.incomplete && params.pack && params.pack.kind !== 'porcion' ? undefined : unitCost.cents,
     build,
   }
 }

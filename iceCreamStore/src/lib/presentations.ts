@@ -1,3 +1,5 @@
+import type { Settings } from '@/types/models'
+
 // Artesanales is sold in two presentations (tabs on the menu). Both use the same flavor catalog.
 // The limits below are enforced only in the front end (see components/PackBuilder.tsx).
 export const ARTISAN_CATEGORY_ID = 'artesanal'
@@ -45,4 +47,18 @@ export const packKindOf = (mode: 'porcion' | 'peso', weight: Weight): PackKind =
 export function limitText(rule: PackRule): string {
   if (rule.min === 1) return `hasta ${rule.max} ${rule.max === 1 ? 'sabor' : 'sabores'}`
   return `de ${rule.min} a ${rule.max} sabores`
+}
+
+/**
+ * Price of a Porción (Helados artesanales) by scoop count. It is not the sum of the scoops:
+ * each count (1, 2, 3) has its own fixed price, set in Ajustes.
+ */
+export function porcionPriceCents(
+  settings: Pick<Settings, 'oneScoopPriceCents' | 'twoScoopsPriceCents' | 'threeScoopsPriceCents'>,
+  scoops: number
+): number {
+  if (scoops <= 0) return 0
+  if (scoops === 1) return settings.oneScoopPriceCents
+  if (scoops === 2) return settings.twoScoopsPriceCents
+  return settings.threeScoopsPriceCents
 }

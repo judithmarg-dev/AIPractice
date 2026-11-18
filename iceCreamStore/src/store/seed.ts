@@ -12,6 +12,9 @@ export const DEFAULT_SETTINGS: Settings = {
   maxScoops: 3,
   kiloPriceCents: 1800,
   halfKiloPriceCents: 1000,
+  oneScoopPriceCents: 300,
+  twoScoopsPriceCents: 500,
+  threeScoopsPriceCents: 650,
   queueAmberMinutes: 15,
   queueRedMinutes: 30,
 }

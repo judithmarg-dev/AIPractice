@@ -104,6 +104,9 @@ create table if not exists store_settings (
   max_scoops               integer not null default 3,
   kilo_price_cents         integer not null default 1800 check (kilo_price_cents >= 0),       -- Artesanales por peso: 1 kilo
   half_kilo_price_cents    integer not null default 1000 check (half_kilo_price_cents >= 0),  -- Artesanales por peso: ½ kilo
+  one_scoop_price_cents    integer not null default 300  check (one_scoop_price_cents >= 0),    -- Artesanales porciones: 1 bola
+  two_scoops_price_cents   integer not null default 500  check (two_scoops_price_cents >= 0),   -- Artesanales porciones: 2 bolas
+  three_scoops_price_cents integer not null default 650  check (three_scoops_price_cents >= 0), -- Artesanales porciones: 3 bolas
   queue_amber_minutes      integer not null default 15,
   queue_red_minutes        integer not null default 30,
   next_order_number        integer not null default 1044,
@@ -112,6 +115,10 @@ create table if not exists store_settings (
 
 alter table store_settings add column if not exists kilo_price_cents integer not null default 1800;
 alter table store_settings add column if not exists half_kilo_price_cents integer not null default 1000;
+-- Porciones de helados artesanales: precio fijo por cantidad de bolas (no es la suma de cada bola).
+alter table store_settings add column if not exists one_scoop_price_cents    integer not null default 300;
+alter table store_settings add column if not exists two_scoops_price_cents   integer not null default 500;
+alter table store_settings add column if not exists three_scoops_price_cents integer not null default 650;
 
 -- ── Row-Level Security ───────────────────────────────────────────────────────
 -- anon          = clientes sin sesión: ven el menú y pueden crear reservas.

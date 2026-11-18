@@ -26,7 +26,7 @@ Dentro de la categoría **Artesanales** del menú, el cliente arma su helado en 
 | Recorte de sprites | En el navegador: canvas + relleno desde el borde que vuelve transparente el blanco; `s1-9` (coco) usa umbral estricto | Los JPEG tienen fondo blanco; hace falta transparencia para apilar |
 | Estado del armado | Slice `pack` en memoria (`mode`, `weight`, `flavorIds`), no persistido | Es efímero; lo leen el catálogo (tiles) y el panel de orden (`PackBuilder`) |
 | Límites | Constantes en `lib/presentations.ts` (`PACK_RULES`) | Solo frontend |
-| Precio porción | Suma del precio de cada bola | Igual que el modelo existente |
+| Precio porción | Fijo por cantidad de bolas: `store_settings.one_scoop_price_cents` ($3.00), `two_scoops_price_cents` ($5.00), `three_scoops_price_cents` ($6.50), editables en Ajustes. Se congela en `LineBuild.pack` (`kind: 'porcion'`) | El precio de 2 o 3 bolas no es la suma de cada bola; las líneas viejas sin `pack` siguen sumando |
 | Precio por peso | Fijo: `store_settings.kilo_price_cents` ($18.00) y `half_kilo_price_cents` ($10.00), editables en Ajustes | Precio independiente del número de sabores |
 | Stock | 1 unidad por sabor y por cantidad de líneas (también por peso) | Reusa `stockUsage` |
 | Costo por peso | Marcado como "incompleto" | No hay costo configurado por kilo |
@@ -39,4 +39,4 @@ Cliente que arma su pedido en caja/menú y staff que administra sabores (dibujo)
 
 ## Migración (Supabase)
 
-Volver a ejecutar `supabase/migrations/001_initial.sql` (idempotente): agrega `products.sprite`, `store_settings.kilo_price_cents` y `half_kilo_price_cents`, asigna sprite a los 4 sabores existentes y elimina `products.subgroup_id`.
+Volver a ejecutar `supabase/migrations/001_initial.sql` (idempotente): agrega `products.sprite`, `store_settings.kilo_price_cents`, `half_kilo_price_cents`, `one_scoop_price_cents`, `two_scoops_price_cents` y `three_scoops_price_cents`, asigna sprite a los 4 sabores existentes y elimina `products.subgroup_id`.

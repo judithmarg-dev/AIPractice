@@ -139,8 +139,11 @@ export function aggregatePeriod(index: IndexedOrder[], period: Period): PeriodAg
       cost += c.cents
       if (c.incomplete) agg.costIncomplete = true
       if (line.build) {
-        for (const scoop of line.build.scoops) {
-          tally(scoop.id, line.qty, scoop.priceCents * line.qty)
+        const { scoops, pack } = line.build
+        for (const scoop of scoops) {
+          // A pack has one fixed price: each flavor gets an equal share of it.
+          const unit = pack ? Math.round(pack.priceCents / scoops.length) : scoop.priceCents
+          tally(scoop.id, line.qty, unit * line.qty)
           agg.scoops[scoop.id] = (agg.scoops[scoop.id] ?? 0) + line.qty
         }
         const container = line.build.container?.name ?? 'Sin envase'
