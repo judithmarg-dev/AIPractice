@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { login } from '@/store/slices/authSlice'
+import { signIn } from '@/store/authActions'
 import '../staff.css'
 
 export default function LoginPage() {
@@ -10,6 +10,7 @@ export default function LoginPage() {
   const dispatch = useAppDispatch()
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
   const authError = useAppSelector((state) => state.auth.error)
+  const pending = useAppSelector((state) => state.auth.pending)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const from = (location.state as { from?: string } | null)?.from
@@ -20,7 +21,7 @@ export default function LoginPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    dispatch(login({ email, password }))
+    void dispatch(signIn(email, password))
   }
 
   return (
@@ -59,8 +60,8 @@ export default function LoginPage() {
             </p>
           )}
 
-          <button type="submit" className="btn btn--primary btn--block">
-            Entrar
+          <button type="submit" className="btn btn--primary btn--block" disabled={pending}>
+            {pending ? 'Entrando…' : 'Entrar'}
           </button>
         </form>
       </div>

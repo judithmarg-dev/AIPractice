@@ -16,6 +16,7 @@ import { selectDraftTotals } from '@/store/selectors'
 import { submitDraft } from '@/store/orderActions'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import { Stepper } from '@/components/ui/Stepper'
+import { PackBuilder } from '@/components/PackBuilder'
 import { Icon } from '@/components/icons'
 import { formatMoney } from '@/lib/money'
 import { describeLine, lineSubtotal } from '@/lib/orderMath'
@@ -118,6 +119,8 @@ export function OrderPanel({ onEditLine }: { onEditLine: (line: OrderLine) => vo
           </button>
         ))}
       </div>
+
+      <PackBuilder />
 
       {empty ? (
         <p className="order__empty">Aún no hay productos en la orden.</p>

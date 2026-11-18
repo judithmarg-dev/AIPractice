@@ -24,7 +24,7 @@ export const T = {
   loadDemo: 'Cargar datos de demostración',
   clearDemo: 'Borrar datos de demostración',
   storageFailed:
-    'No se pudo guardar en este navegador. Los cambios siguen activos, pero se perderán al recargar.',
+    'No se pudo guardar el pedido en curso en este navegador. Sigue activo, pero se perderá al recargar.',
 } as const
 
 export const MODE_LABEL: Record<ServiceMode, string> = {

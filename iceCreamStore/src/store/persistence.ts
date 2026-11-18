@@ -1,10 +1,10 @@
-// Versioned localStorage persistence (RF-0.2).
+// Shape of the store data synced with Supabase, the seed used to fill an empty database,
+// the migration from older saved shapes, and the local order draft.
 import type { Booking } from '@/types/booking'
 import type { Category, OptionItem, Product, Settings } from '@/types/models'
 import { DEFAULT_SETTINGS, buildSeedCatalog, migrateLegacyItems, type LegacyItem } from './seed'
-import { emptyDraft, initialOrderState, type OrderState } from './slices/orderSlice'
+import { emptyDraft, initialOrderState, type Draft, type OrderState } from './slices/orderSlice'
 
-export const STORAGE_KEY = 'ics-state-v1'
 export const STATE_VERSION = 1
 
 export interface PersistedState {
@@ -16,8 +16,6 @@ export interface PersistedState {
   settings: Settings
 }
 
-export const PERSISTED_KEYS = ['inventory', 'categories', 'options', 'order', 'bookings', 'settings'] as const
-
 export function seedPersisted(): PersistedState {
   const catalog = buildSeedCatalog()
   return {
@@ -28,12 +26,6 @@ export function seedPersisted(): PersistedState {
     bookings: { items: [] },
     settings: { ...DEFAULT_SETTINGS },
   }
-}
-
-export function serialize(state: PersistedState): string {
-  const data: Record<string, unknown> = { version: STATE_VERSION }
-  for (const key of PERSISTED_KEYS) data[key] = state[key]
-  return JSON.stringify(data)
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
@@ -79,27 +71,24 @@ export function migrate(raw: unknown): PersistedState | null {
   }
 }
 
-export function parseStored(text: string | null): PersistedState | null {
-  if (!text) return null
+// ── Order draft: the only state kept in this browser; the rest lives in Supabase ──
+
+export const DRAFT_KEY = 'ics-draft-v1'
+
+export function readDraft(): Draft | null {
   try {
-    return migrate(JSON.parse(text))
+    const raw: unknown = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? 'null')
+    if (!isObject(raw) || !Array.isArray(raw.lines)) return null
+    return { ...emptyDraft(), ...(raw as Partial<Draft>) }
   } catch {
     return null
   }
 }
 
-export function readStored(): string | null {
+/** False when storage is unavailable or full; the draft keeps working in memory. */
+export function writeDraft(draft: Draft): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY)
-  } catch {
-    return null
-  }
-}
-
-/** False when storage is unavailable or full; the app keeps working in memory. */
-export function writeStored(text: string): boolean {
-  try {
-    localStorage.setItem(STORAGE_KEY, text)
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
     return true
   } catch {
     return false

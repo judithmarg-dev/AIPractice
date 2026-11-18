@@ -1,6 +1,7 @@
 // Checks the pure calculations and the order/stock flow against the reference numbers of
 // specs/panel-propietario-2026-10-17/validation.md. Run with `pnpm verify`.
 import { store } from '@/store'
+import { clearPack, setPackMode, setPackWeight, toggleFlavor } from '@/store/slices/packSlice'
 import { addLine, loadForEdit, updateLine } from '@/store/slices/orderSlice'
 import { updateProduct } from '@/store/slices/inventorySlice'
 import { cancelQueued, chargeQueued, submitDraft } from '@/store/orderActions'
@@ -178,6 +179,34 @@ check('alertas de stock', stockAlerts([product('x', 0), product('y', 3), product
 const csv = toCsv(['producto', 'total'], [['=1+1', -3], ['Café, "frío"', 2]])
 check('BOM', csv.charCodeAt(0), 0xfeff)
 check('escape de fórmulas y comillas', csv.slice(1), "producto,total\r\n'=1+1,-3\r\n\"Café, \"\"frío\"\"\",2\r\n")
+
+// ── Artesanales: porciones y por peso ───────────────────────────────────────────
+const scoopsOf = [pist, dulce, { id: 'chocolate-intenso', name: 'Chocolate Intenso', priceCents: 260 }].map(toSnapshot)
+const porcion = makeBuildLine({ lineId: 'p1', categoryId: 'artesanal', scoops: scoopsOf, extras: [], toppings: [], qty: 2, presentation: 'porcion' })
+check('porción: cada bola a su precio', porcion.unitPriceCents, 780)
+check('porción: consume 1 de stock por bola y unidad', stockDelta([], [porcion]), { 'pistacho-siciliano': -2, 'dulce-de-leche': -2, 'chocolate-intenso': -2 })
+const kilo = makeBuildLine({
+  lineId: 'k1', categoryId: 'artesanal', scoops: scoopsOf, extras: [], toppings: [], qty: 1,
+  presentation: 'peso', pack: { kind: 'kilo', label: '1 kilo', priceCents: 1800 },
+})
+check('por peso: precio fijo sin importar los sabores', kilo.unitPriceCents, 1800)
+check('por peso: descripción', describeLine(kilo), { title: 'Helado artesanal · 1 kilo', detail: '3 sabores: Pistacho Siciliano + Dulce de Leche + Chocolate Intenso' })
+check('por peso: costo marcado incompleto', [kilo.unitCostCents, kilo.build?.pack?.kind], [undefined, 'kilo'])
+{
+  const reduce = (actions: Parameters<typeof store.dispatch>[0][]) => {
+    for (const a of actions) store.dispatch(a)
+    return store.getState().pack
+  }
+  reduce([clearPack(), setPackMode('porcion')])
+  const ids = ['a', 'b', 'c', 'd']
+  check('porción: máximo 3 sabores', reduce(ids.map((i) => toggleFlavor(i))).flavorIds, ['a', 'b', 'c'])
+  check('quitar un sabor lo desmarca', reduce([toggleFlavor('b')]).flavorIds, ['a', 'c'])
+  check('cambiar de pestaña reinicia la selección', reduce([setPackMode('peso')]).flavorIds, [])
+  reduce([setPackWeight('kilo'), ...['a', 'b', 'c', 'd', 'e', 'f', 'g'].map((i) => toggleFlavor(i))])
+  check('1 kilo: máximo 6 sabores', store.getState().pack.flavorIds.length, 6)
+  check('½ kilo recorta a 3 sabores', reduce([setPackWeight('medio')]).flavorIds, ['a', 'b', 'c'])
+  reduce([clearPack()])
+}
 
 // ── Datos de demostración ─────────────────────────────────────────────────────
 const s = store.getState()

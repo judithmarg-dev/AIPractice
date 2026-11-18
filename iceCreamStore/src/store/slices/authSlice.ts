@@ -1,34 +1,18 @@
+// Staff session mirrored from Supabase Auth (see store/authActions.ts and store/remoteSync.ts).
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 interface AuthState {
   isAuthenticated: boolean
+  email: string | null
+  /** A sign-in request is in flight. */
+  pending: boolean
   error: string | null
 }
 
-const STAFF_EMAIL = 'staff@icecreamstore.com'
-const STAFF_PASSWORD = 'staff123'
-// The session survives a reload of the tab, not the closing of the browser.
-const SESSION_KEY = 'ics-auth'
-
-function readSession(): boolean {
-  try {
-    return sessionStorage.getItem(SESSION_KEY) === '1'
-  } catch {
-    return false
-  }
-}
-
-export function writeSession(value: boolean) {
-  try {
-    if (value) sessionStorage.setItem(SESSION_KEY, '1')
-    else sessionStorage.removeItem(SESSION_KEY)
-  } catch {
-    // Storage unavailable: the session lives only in memory.
-  }
-}
-
 const initialState: AuthState = {
-  isAuthenticated: readSession(),
+  isAuthenticated: false,
+  email: null,
+  pending: false,
   error: null,
 }
 
@@ -36,21 +20,23 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    login(state, action: PayloadAction<{ email: string; password: string }>) {
-      const { email, password } = action.payload
-      if (email.trim().toLowerCase() === STAFF_EMAIL && password === STAFF_PASSWORD) {
-        state.isAuthenticated = true
-        state.error = null
-      } else {
-        state.error = 'Correo o contraseña incorrectos.'
-      }
-    },
-    logout(state) {
-      state.isAuthenticated = false
+    /** Supabase reported a new session (email) or no session (null). */
+    sessionChanged(state, action: PayloadAction<string | null>) {
+      state.isAuthenticated = action.payload !== null
+      state.email = action.payload
+      state.pending = false
       state.error = null
+    },
+    loginStarted(state) {
+      state.pending = true
+      state.error = null
+    },
+    loginFailed(state, action: PayloadAction<string>) {
+      state.pending = false
+      state.error = action.payload
     },
   },
 })
 
-export const { login, logout } = authSlice.actions
+export const { sessionChanged, loginStarted, loginFailed } = authSlice.actions
 export default authSlice.reducer
